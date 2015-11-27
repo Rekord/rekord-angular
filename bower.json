@@ -1,0 +1,26 @@
+{
+  "name": "neurosync-angular",
+  "version": "0.2.0",
+  "homepage": "https://github.com/ClickerMonkey/neurosync-angular",
+  "authors": [
+    "Philip Diffenderfer <pdiffenderfer@gmail.com>"
+  ],
+  "description": "A neurosync binding to angular - implementing Neuro.rest",
+  "main": "build/neurosync-angular.js",
+  "keywords": [
+    "javascript",
+    "orm",
+    "offline",
+    "realtime",
+    "neurosync",
+    "angular"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ]
+}
