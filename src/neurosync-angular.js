@@ -68,6 +68,14 @@
         remove: function( model, success, failure )
         {
           execute( 'DELETE', undefined, database.api + model.$key(), success, failure, {} );
+        },
+        query: function( query, success, failure )
+        {
+          var method = query.method || 'GET';
+          var data = query.data || undefined;
+          var url = query.url || query;
+
+          execute( method, data, url, success, failure );
         }
       };
 
@@ -109,6 +117,7 @@
     NeuroBind.Events = {
       Database: 'updated',
       Model: 'saved removed remote-update relation-update',
+      Collection: 'add adds sort remove reset',
       Scope: '$destroy'
     };
 
@@ -129,6 +138,10 @@
         {
           this.target.$on( NeuroBind.Events.Model, this.notify );
         }
+        else if ( this.target instanceof Neuro.Collection )
+        {
+          this.target.on( NeuroBind.Events.Collection, this.notify );
+        }
 
         this.scope.$on( NeuroBind.Events.Scope, this.release );
       },
@@ -141,6 +154,10 @@
         else if ( this.target instanceof Neuro.Model )
         {
           this.target.$off( NeuroBind.Events.Model, this.notify );
+        }
+        else if ( this.target instanceof Neuro.Collection )
+        {
+          this.target.off( NeuroBind.Events.Collection, this.notify );
         }
       },
       newRelease: function()
