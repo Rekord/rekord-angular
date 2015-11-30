@@ -1,15 +1,23 @@
-(function (app, undefined)
+(function (app, global, undefined)
 {
 
   var NeuroSettings = {
     debug: false
   };
 
+  var NeuroResolve = {
+
+  };
+
   app
+    .constant( 'NeuroResolve', NeuroResolve )
     .constant( 'NeuroSettings', NeuroSettings )
     .factory( 'Neuro', ['$http', NeuroFactory] )
-    .factory( 'NeuroBind', ['$log', NeuroBindFactory] )
+    .factory( 'NeuroBind', NeuroBindFactory )
   ;
+
+  global.NeuroBind = NeuroBind;
+  global.NeuroResolve = NeuroResolve;
 
   function NeuroFactory($http)
   {
@@ -98,110 +106,187 @@
     return Neuro;
   }
 
-  function NeuroBindFactory($log)
+  function NeuroBindFactory()
   {
-    function NeuroBind( scope, target, callback )
-    {
-      if ( !(this instanceof NeuroBind) ) return new NeuroBind( scope, target, callback );
-
-      this.scope = scope;
-      this.target = target;
-      this.callback = callback;
-
-      this.notify = this.newNotification();
-      this.release = this.newRelease();
-      
-      this.on();
-    }
-
-    NeuroBind.Events = 
-    {
-      Database: 'updated',
-      Model: 'saved removed remote-update relation-update',
-      Collection: 'add adds sort remove reset',
-      Page: 'change',
-      Scope: '$destroy'
-    };
-
-    NeuroBind.prototype = 
-    {
-      on: function()
-      {
-        if ( Neuro.isNeuro( this.target ) )
-        {
-          this.target = this.target.Database;
-        }
-
-        if ( this.target instanceof Neuro.Database )
-        {
-          this.target.on( NeuroBind.Events.Database, this.notify  );
-        }
-        else if ( this.target instanceof Neuro.Model )
-        {
-          this.target.$on( NeuroBind.Events.Model, this.notify );
-        }
-        else if ( this.target instanceof Neuro.Collection )
-        {
-          this.target.on( NeuroBind.Events.Collection, this.notify );
-        }
-        else if ( this.target instanceof Neuro.Page )
-        {
-          this.target.on( NeuroBind.Events.Page, this.notify );
-        }
-
-        this.scope.$on( NeuroBind.Events.Scope, this.release );
-      },
-      off: function()
-      {
-        if ( this.target instanceof Neuro.Database )
-        {
-          this.target.off( NeuroBind.Events.Database, this.notify );
-        }
-        else if ( this.target instanceof Neuro.Model )
-        {
-          this.target.$off( NeuroBind.Events.Model, this.notify );
-        }
-        else if ( this.target instanceof Neuro.Collection )
-        {
-          this.target.off( NeuroBind.Events.Collection, this.notify );
-        }
-        else if ( this.target instanceof Neuro.Page )
-        {
-          this.target.off( NeuroBind.Events.Page, this.notify );
-        }
-      },
-      newRelease: function()
-      {
-        var binder = this;
-
-        return function()
-        {
-          binder.off();
-        };
-      },
-      newNotification: function()
-      {
-        var binder = this;
-
-        return function()
-        {
-          binder.scope.$evalAsync(function()
-          {
-            if ( binder.callback )
-            {
-              binder.callback.apply( binder.target );
-            }
-
-            if ( NeuroSettings.debug )
-            {
-              Neuro.debug( '[Scope:$evalAsync]', binder.scope );
-            }
-          });
-        };
-      }
-    };
-
     return NeuroBind;
   }
 
-})( angular.module('neurosync', []) );
+  function NeuroBind( scope, target, callback )
+  {
+    if ( !(this instanceof NeuroBind) ) return new NeuroBind( scope, target, callback );
+
+    this.scope = scope;
+    this.target = target;
+    this.callback = callback;
+
+    this.notify = this.newNotification();
+    this.release = this.newRelease();
+    
+    this.on();
+  }
+
+  NeuroBind.Events = 
+  {
+    Database: 'updated',
+    Model: 'saved removed remote-update relation-update',
+    Collection: 'add adds sort remove reset',
+    Page: 'change',
+    Scope: '$destroy'
+  };
+
+  NeuroBind.prototype = 
+  {
+    on: function()
+    {
+      if ( Neuro.isNeuro( this.target ) )
+      {
+        this.target = this.target.Database;
+      }
+
+      if ( this.target instanceof Neuro.Database )
+      {
+        this.target.on( NeuroBind.Events.Database, this.notify  );
+      }
+      else if ( this.target instanceof Neuro.Model )
+      {
+        this.target.$on( NeuroBind.Events.Model, this.notify );
+      }
+      else if ( this.target instanceof Neuro.Collection )
+      {
+        this.target.on( NeuroBind.Events.Collection, this.notify );
+      }
+      else if ( this.target instanceof Neuro.Page )
+      {
+        this.target.on( NeuroBind.Events.Page, this.notify );
+      }
+
+      this.scope.$on( NeuroBind.Events.Scope, this.release );
+    },
+    off: function()
+    {
+      if ( this.target instanceof Neuro.Database )
+      {
+        this.target.off( NeuroBind.Events.Database, this.notify );
+      }
+      else if ( this.target instanceof Neuro.Model )
+      {
+        this.target.$off( NeuroBind.Events.Model, this.notify );
+      }
+      else if ( this.target instanceof Neuro.Collection )
+      {
+        this.target.off( NeuroBind.Events.Collection, this.notify );
+      }
+      else if ( this.target instanceof Neuro.Page )
+      {
+        this.target.off( NeuroBind.Events.Page, this.notify );
+      }
+    },
+    newRelease: function()
+    {
+      var binder = this;
+
+      return function()
+      {
+        binder.off();
+      };
+    },
+    newNotification: function()
+    {
+      var binder = this;
+
+      return function()
+      {
+        binder.scope.$evalAsync(function()
+        {
+          if ( binder.callback )
+          {
+            binder.callback.apply( binder.target );
+          }
+
+          if ( NeuroSettings.debug )
+          {
+            Neuro.debug( '[Scope:$evalAsync]', binder.scope );
+          }
+        });
+      };
+    }
+  };
+
+  NeuroResolve.factory = function( name, callback )
+  {
+    return ['$q', function resolve($q) {
+      var defer = $q.defer();
+
+      Neuro.get( name, function(model) 
+      {
+        callback( model, defer );
+      });
+
+      return defer.promise;
+    }];
+  };
+
+  NeuroResolve.model = function( name, input )
+  {
+    return NeuroResolve.factory( name, function(model, defer) 
+    {
+      model.grabModel( input, function(instance) 
+      {
+        if ( instance ) {
+          defer.resolve( instance );
+        } else {
+          defer.reject();
+        }
+      });
+    });
+  };
+
+  NeuroResolve.fetch = function( name, input )
+  {
+    return NeuroResolve.factory( name, function(model, defer) 
+    {
+      defer.resolve( model.fetch( input ) );
+    });
+  };
+
+  NeuroResolve.query = function( name, query )
+  {
+    return NeuroResolve.factory( name, function(model, defer)
+    {
+      var remoteQuery = model.query( query );
+
+      remoteQuery.success(function() 
+      {
+        defer.resolve( remoteQuery );
+      });
+
+      remoteQuery.failure(function() 
+      {
+        defer.reject();
+      });
+    });
+  };
+
+  NeuroResolve.all = function( name )
+  {
+    return NeuroResolve.factory( name, function(model, defer)
+    {
+      model.Database.ready(function() 
+      {
+        defer.resolve( model.all() );
+      });
+    });
+  };
+
+  NeuroResolve.where = function( name, whereProperties, whereValue, whereEquals )
+  {
+    return NeuroResolve.factory( name, function(model, defer)
+    {
+      model.Database.ready(function() 
+      {
+        defer.resolve( model.all().filtered( whereProperties, whereValue, whereEquals ) );
+      });
+    });
+  };
+
+})( angular.module('neurosync', []), window );
