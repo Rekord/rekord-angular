@@ -114,10 +114,12 @@
       this.on();
     }
 
-    NeuroBind.Events = {
+    NeuroBind.Events = 
+    {
       Database: 'updated',
       Model: 'saved removed remote-update relation-update',
       Collection: 'add adds sort remove reset',
+      Page: 'change',
       Scope: '$destroy'
     };
 
@@ -142,6 +144,10 @@
         {
           this.target.on( NeuroBind.Events.Collection, this.notify );
         }
+        else if ( this.target instanceof Neuro.Page )
+        {
+          this.target.on( NeuroBind.Events.Page, this.notify );
+        }
 
         this.scope.$on( NeuroBind.Events.Scope, this.release );
       },
@@ -158,6 +164,10 @@
         else if ( this.target instanceof Neuro.Collection )
         {
           this.target.off( NeuroBind.Events.Collection, this.notify );
+        }
+        else if ( this.target instanceof Neuro.Page )
+        {
+          this.target.off( NeuroBind.Events.Page, this.notify );
         }
       },
       newRelease: function()
