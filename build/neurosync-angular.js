@@ -212,25 +212,114 @@
     }
   };
 
+  var TEMPLATE_REGEX = /\{([^\}]+)\}/;
+
+  function buildTemplate(template, params)
+  {
+    return template.replace( TEMPLATE_REGEX, function(match, prop)
+    {
+      return prop in params ? params[ prop ] : '';
+    });
+  }
+
+  function hasModule(moduleName)
+  {
+    if ( moduleName in hasModule.tested )
+    {
+      return hasModule.tested[ moduleName ];
+    }
+
+    try
+    {
+      angular.module( moduleName );
+
+      return hasModule.tested[ moduleName ] = true;
+    }
+    catch (e)
+    {
+      return hasModule.tested[ moduleName ] = false;
+    }
+  }
+
+  hasModule.tested = {};
+
+  function getRouteParameter()
+  {
+    return getRouteParameter.cached ? getRouteParameter.cached : getRouteParameter.cached = 
+      ( hasModule( 'ui.router' ) ? '$stateParams' : 
+        ( hasModule( 'ngRoute' ) ? '$route' : 
+          false ) );
+  }
+
+  function buildParamResolver()
+  {
+    if ( hasModule( 'ui.router') )
+    {
+      return function($stateParams)
+      {
+        return $stateParams;
+      };
+    }
+    else if ( hasModule( 'ngRoute') )
+    {
+      return function($route)
+      {
+        return $route.current;
+      };
+    }
+    return function()
+    {
+      return false;
+    };
+  }
+
+  function templateResolver(routeParams)
+  {
+    return function(text) 
+    {
+      if (angular.isString( text ) && routeParams ) 
+      {
+        return buildTemplate( text, routeParams );
+      }
+
+      return text;
+    };
+  }
+
+  getRouteParameter.cached = null;
+
   NeuroResolve.factory = function( name, callback )
   {
-    return ['$q', function resolve($q) {
+    var param = getRouteParameter();
+    var paramResolver = buildParamResolver();
+
+    var factory = ['$q', function resolve($q, routing) 
+    {
       var defer = $q.defer();
+      var routeParams = paramResolver( routing );
+      var templateResolver = templateResolver( routeParams );
 
       Neuro.get( name, function(model) 
       {
-        callback( model, defer );
+        callback( model, defer, templateResolver );
       });
 
       return defer.promise;
     }];
+
+    if ( param ) 
+    {
+      factory.splice( 1, 0, param );
+    }
+
+    return factory;
   };
 
   NeuroResolve.model = function( name, input )
   {
-    return NeuroResolve.factory( name, function(model, defer) 
+    return NeuroResolve.factory( name, function(model, defer, templateResolver) 
     {
-      model.grabModel( input, function(instance) 
+      model.grabModel( templateResolver( input ), function(instance) 
       {
         if ( instance ) {
           defer.resolve( instance );
@@ -243,17 +332,17 @@
 
   NeuroResolve.fetch = function( name, input )
   {
-    return NeuroResolve.factory( name, function(model, defer) 
+    return NeuroResolve.factory( name, function(model, defer, templateResolver) 
     {
-      defer.resolve( model.fetch( input ) );
+      defer.resolve( model.fetch( templateResolver( input ) ) );
     });
   };
 
   NeuroResolve.query = function( name, query )
   {
-    return NeuroResolve.factory( name, function(model, defer)
+    return NeuroResolve.factory( name, function(model, defer, templateResolver)
     {
-      var remoteQuery = model.query( query );
+      var remoteQuery = model.query( templateResolver( query ) );
 
       remoteQuery.success(function() 
       {
@@ -269,7 +358,7 @@
 
   NeuroResolve.all = function( name )
   {
-    return NeuroResolve.factory( name, function(model, defer)
+    return NeuroResolve.factory( name, function(model, defer, templateResolver)
     {
       model.Database.ready(function() 
       {
@@ -280,8 +369,20 @@
 
   NeuroResolve.where = function( name, whereProperties, whereValue, whereEquals )
   {
-    return NeuroResolve.factory( name, function(model, defer)
+    return NeuroResolve.factory( name, function(model, defer, templateResolver)
     {
+      if ( angular.isObject( whereProperties ) )
+      {
+        for (var prop in whereProperties)
+        {
+          whereProperties[ prop ] = templateResolver( whereProperties[ prop ] );
+        }
+      }
+      if ( angular.isString( whereValue ) )
+      {
+        whereValue = templateResolver( whereValue );
+      }
+
       model.Database.ready(function() 
       {
         defer.resolve( model.all().filtered( whereProperties, whereValue, whereEquals ) );
