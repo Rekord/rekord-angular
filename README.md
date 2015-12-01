@@ -2,9 +2,9 @@
 
 A neurosync binding to angular - implementing Neuro.rest.
 
-This binding also supplies a factory `NeuroBind` which is a function which accepts a `$scope` variable followed by a `Neuro` instance, `Neuro.Database` instance, or `Neuro.Model` instance. When a change event is triggered on the neurosync object it notifies the scope.
-
 The easiest way to install is by using bower via `bower install neurosync-angular`.
+
+There are two services which assist in making angular and neurosync work flawlessly together:
 
 ### NeuroBind
 
@@ -16,6 +16,8 @@ Modifications outside of angular includes but is not limited to:
 - Data being returned from saving a record
 - Data being broadcasted live
 - Data retrieved from an automatic refresh
+- A model is added/updated/removed in a separate place in the application
+- A relationship is updated in a separate place in the application
 
 ```javascript
 var Task = Neuro({
