@@ -64,6 +64,12 @@ UI before data is completely loaded. Route parameters can also be used by specif
 
     // Call GET to REST API to return the task specified in URL
     task: NeuroResolve.fetch( 'task', '{taskId}' ),
+    
+    // Create new task & save it
+    task: NeuroResolve.create( 'task', {name: 'New Task'} ),
+    
+    // Create new unsaved task (equivalent of calling new Task)
+    task: NeuroResolve.create( 'task', {name: 'New Task'}, true ),
 
     // Make an AJAX call to the given URL and return all results
     tasks: NeuroResolve.query( 'task', '/api/task/retired' ),
