@@ -44,7 +44,7 @@ NeuroBind( $scope, page ); // Listens to a page from a collection
 ### NeuroResolve
 
 NeuroResolve generates functions for routing libraries to return an object
-once it's completely loaded. This is used in routing libraries to avoid display
+once it's completely loaded. This is used in routing libraries to avoid displaying the
 UI before data is completely loaded. Route parameters can also be used by specifying a string containing text in the format `{paramName}`.
 
 ```javascript
