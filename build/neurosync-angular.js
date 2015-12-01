@@ -338,6 +338,21 @@
     });
   };
 
+  NeuroResolve.create = function( name, properties, dontSave )
+  {
+    return NeuroResolve.factory( name, function(model, defer, templateResolver) 
+    {
+      if ( dontSave )
+      {
+        defer.resolve( new model( properties ) );
+      }
+      else
+      {
+        defer.resolve( model.create( properties ) );
+      }
+    });
+  };
+
   NeuroResolve.query = function( name, query )
   {
     return NeuroResolve.factory( name, function(model, defer, templateResolver)

@@ -215,6 +215,72 @@ test( 'NeuroResolve.model', function(assert)
 
 });
 
+test( 'NeuroResolve.create save', function(assert)
+{
+  var done = assert.async();
+  var prefix = 'NeuroResolve_create_save_';
+
+  var TaskName = prefix + 'task';
+  var Task = Neuro({
+    name: TaskName,
+    fields: ['name', 'done'],
+    defaults: {done: false}
+  });
+
+  expect( 2 );
+
+  $injector.invoke(function($rootScope, NeuroResolve)
+  {
+    var resolve = NeuroResolve.create( TaskName, {name: 't0'} );
+    var promise = $injector.invoke( resolve );
+
+    promise.then(function(resolved)
+    {
+      strictEqual( resolved.name, 't0' );
+      strictEqual( resolved.$isSaved(), true );
+
+      done();
+    });
+
+    $rootScope.$digest();
+
+  });
+
+});
+
+test( 'NeuroResolve.create dontSave', function(assert)
+{
+  var done = assert.async();
+  var prefix = 'NeuroResolve_create_dontSave_';
+
+  var TaskName = prefix + 'task';
+  var Task = Neuro({
+    name: TaskName,
+    fields: ['name', 'done'],
+    defaults: {done: false}
+  });
+
+  expect( 2 );
+
+  $injector.invoke(function($rootScope, NeuroResolve)
+  {
+    var resolve = NeuroResolve.create( TaskName, {name: 't0'}, true );
+    var promise = $injector.invoke( resolve );
+
+    promise.then(function(resolved)
+    {
+      strictEqual( resolved.name, 't0' );
+      strictEqual( resolved.$isSaved(), false );
+
+      done();
+    });
+
+    $rootScope.$digest();
+
+  });
+
+});
+
 test( 'NeuroResolve.fetch', function(assert)
 {
   var done = assert.async();
