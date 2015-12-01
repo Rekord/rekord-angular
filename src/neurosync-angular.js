@@ -273,7 +273,7 @@
     };
   }
 
-  function templateResolver(routeParams)
+  function buildTemplateResolver(routeParams)
   {
     return function(text) 
     {
@@ -297,7 +297,7 @@
     {
       var defer = $q.defer();
       var routeParams = paramResolver( routing );
-      var templateResolver = templateResolver( routeParams );
+      var templateResolver = buildTemplateResolver( routeParams );
 
       Neuro.get( name, function(model) 
       {
@@ -319,7 +319,7 @@
   {
     return NeuroResolve.factory( name, function(model, defer, templateResolver) 
     {
-      model.grabModel( templateResolver( input ), function(instance) 
+      model.Database.grabModel( templateResolver( input ), function(instance) 
       {
         if ( instance ) {
           defer.resolve( instance );
