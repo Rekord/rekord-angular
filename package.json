@@ -1,6 +1,6 @@
 {
   "name": "neurosync-angular",
-  "version": "1.0.8",
+  "version": "1.0.9",
   "description": "A neurosync binding to angular - implementing Neuro.rest",
   "author": "Philip Diffenderfer",
   "license": "MIT",

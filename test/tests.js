@@ -352,6 +352,53 @@ test( 'NeuroResolve.fetch', function(assert)
 
 });
 
+test( 'NeuroResolve.fetch cache', function(assert)
+{
+  var done = assert.async();
+  var prefix = 'NeuroResolve_fetch_';
+
+  var TaskName = prefix + 'task';
+  var Task = Neuro({
+    name: TaskName,
+    fields: ['name', 'done'],
+    defaults: {done: false}
+  });
+
+  var remote = Task.Database.rest;
+
+  remote.map.put( 45, {id: 45, name: 't45'} );
+
+  expect( 4 );
+
+  $injector.invoke(function($rootScope, NeuroResolve)
+  {
+    var resolve = NeuroResolve.fetch( TaskName, 45 ).cache();
+    var promise = $injector.invoke( resolve );
+
+    promise.then(function(resolved)
+    {
+      strictEqual( resolved.id, 45 );
+      strictEqual( resolved.name, 't45' );
+    });
+
+    $rootScope.$digest();
+
+    remote.map.put( 45, {id: 45, name: 't45Nope' } );
+    promise = $injector.invoke( resolve );
+
+    promise.then(function(resolved)
+    {
+      strictEqual( resolved.id, 45 );
+      strictEqual( resolved.name, 't45' );
+
+      done();
+    });
+
+    $rootScope.$digest();
+  });
+
+});
+
 test( 'NeuroResolve.fetchAll', function(assert)
 {
   var done = assert.async();

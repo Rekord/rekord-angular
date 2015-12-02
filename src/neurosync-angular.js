@@ -465,17 +465,35 @@
   {
     var param = getRouteParameter();
     var paramResolver = buildParamResolver();
+    var cache = false;
+    var cachedValue = void 0;
 
     var factory = ['$q', function resolve($q, routing) 
     {
       var defer = $q.defer();
-      var routeParams = paramResolver( routing );
-      var templateResolver = buildTemplateResolver( routeParams );
 
-      Neuro.get( name, function(model) 
+      if ( cachedValue !== void 0 )
       {
-        callback( model, defer, templateResolver );
-      });
+        defer.resolve( cachedValue );
+      }
+      else
+      {
+        var routeParams = paramResolver( routing );
+        var templateResolver = buildTemplateResolver( routeParams );
+        
+        if ( cache )
+        {
+          defer.promise.then(function(resolvedValue)
+          {
+            cachedValue = resolvedValue;
+          });
+        }
+
+        Neuro.get( name, function(model) 
+        {
+          callback( model, defer, templateResolver );
+        });
+      }
 
       return defer.promise;
     }];
@@ -484,6 +502,13 @@
     {
       factory.splice( 1, 0, param );
     }
+
+    factory.cache = function()
+    {
+      cache = true;
+
+      return factory;
+    };
 
     return factory;
   };
