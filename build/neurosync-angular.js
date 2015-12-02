@@ -219,7 +219,7 @@
     }
   };
 
-  function NeuroSelect(source, select)
+  function NeuroSelect(source, select, fill)
   {
     this.$onRemove = Neuro.copyFunction( this.$handleRemove );
     this.$onRemoves = Neuro.copyFunction( this.$handleRemoves );
@@ -227,7 +227,7 @@
     this.$onReset = Neuro.copyFunction( this.$handleReset );
 
     this.$reset( source );
-    this.$select( select );
+    this.$select( select, fill );
   }
 
   NeuroSelect.prototype = 
@@ -263,9 +263,9 @@
       this.$source.off( Neuro.Collection.Events.Reset, this.$onReset );
     },
 
-    $select: function(select)
+    $select: function(select, fill)
     {
-      if ( angular.isArray( select ) )
+      if ( Neuro.isArray( select ) )
       {
         var db = this.$source.database;
         var remove = {};
@@ -291,6 +291,22 @@
         {
           delete this[ key ];
         }
+
+        if ( fill )
+        {
+          var keys = this.$source.keys();
+
+          for (var i = 0; i < keys.length; i++)
+          {
+            var key = keys[ i ];
+
+            if ( !this[ key ] )
+            {
+              this[ key ] = false;
+            }
+          }
+        }
+
       }
     },
 
@@ -359,9 +375,9 @@
     }
   };
 
-  Neuro.ModelCollection.prototype.selectable = function(select)
+  Neuro.ModelCollection.prototype.selectable = function(select, fill)
   {
-    return new NeuroSelect( this, select );
+    return new NeuroSelect( this, select, fill );
   };
 
   var TEMPLATE_REGEX = /\{([^\}]+)\}/;
@@ -429,7 +445,7 @@
   {
     return function(text) 
     {
-      if (angular.isString( text ) && routeParams ) 
+      if (Neuro.isString( text ) && routeParams ) 
       {
         return buildTemplate( text, routeParams );
       }
@@ -549,14 +565,14 @@
   {
     return NeuroResolve.factory( name, function(model, defer, templateResolver)
     {
-      if ( angular.isObject( whereProperties ) )
+      if ( Neuro.isObject( whereProperties ) )
       {
         for (var prop in whereProperties)
         {
           whereProperties[ prop ] = templateResolver( whereProperties[ prop ] );
         }
       }
-      if ( angular.isString( whereValue ) )
+      if ( Neuro.isString( whereValue ) )
       {
         whereValue = templateResolver( whereValue );
       }
