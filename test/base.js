@@ -3,6 +3,8 @@
 
 QUnit.config.reorder = false;
 
+Neuro.setOnline();
+
 // Extra Assertions
 
 function isInstance(model, Class, message)
@@ -22,68 +24,22 @@ function hasModel(neuro, key, model, message)
 
 // Utility Methods
 
-var removeModule = (function(a)
+function ngRouteInjector()
 {
-  var $module = a.module;
-  var modules = {};
+  $route = {current: {}};
 
-  a.module = function(moduleName, dependencies)
-  {
-    var m = $module.apply( this, arguments );
+  angular.module('ngRoute', []).constant('$route', $route);
 
-    modules[ moduleName ] = m;
-
-    return m;
-  };
-
-  return function(moduleName) 
-  {
-    delete modules[ moduleName ];
-  };
-
-})(angular);
-
-function ngRouteInjector(onInjector)
-{
-  removeModule('ngRoute');
-  removeModule('ui.router');
-
-  reloadLibrary(function()
-  {
-    $route = {current: {}};
-
-    angular.module('ngRoute', []).constant('$route', $route);
-
-    var $injector = angular.injector(['ng', 'ngMock', 'neurosync', 'ngRoute']);
-
-    onInjector( $injector );
-  });
+  return angular.injector(['ng', 'ngMock', 'neurosync', 'ngRoute']);
 }
 
-function uiRouterInjector(onInjector)
+function uiRouterInjector()
 {
-  removeModule('ngRoute');
-  removeModule('ui.router');
-
-  reloadLibrary(function()
-  {
-    $stateParams = {};
+  $stateParams = {};
   
-    angular.module('ui.router', []).constant('$stateParams', $stateParams);
+  angular.module('ui.router', []).constant('$stateParams', $stateParams);
 
-    var $injector = angular.injector(['ng', 'ngMock', 'neurosync', 'ui.router']);
-
-    onInjector( $injector );
-  });
-}
-
-function reloadLibrary(onLoaded)
-{
-  var script = document.createElement('script');
-  script.onload = onLoaded;
-  script.src = '../build/neurosync-angular.js?nocache=' + Math.random();
-
-  document.getElementsByTagName('head')[0].appendChild(script);
+  return angular.injector(['ng', 'ngMock', 'neurosync', 'ui.router']);
 }
 
 function wait(millis, callback)

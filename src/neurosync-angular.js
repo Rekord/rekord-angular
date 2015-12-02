@@ -338,6 +338,17 @@
     });
   };
 
+  NeuroResolve.fetchAll = function( name )
+  {
+    return NeuroResolve.factory( name, function(model, defer, templateResolver) 
+    {
+      model.fetchAll(function(models)
+      {
+        defer.resolve( models );
+      });
+    });
+  };
+
   NeuroResolve.create = function( name, properties, dontSave )
   {
     return NeuroResolve.factory( name, function(model, defer, templateResolver) 

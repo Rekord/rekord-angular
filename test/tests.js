@@ -318,6 +318,47 @@ test( 'NeuroResolve.fetch', function(assert)
 
 });
 
+test( 'NeuroResolve.fetchAll', function(assert)
+{
+  var done = assert.async();
+  var prefix = 'NeuroResolve_fetchAll_';
+
+  var TaskName = prefix + 'task';
+  var Task = Neuro({
+    name: TaskName,
+    fields: ['name', 'done'],
+    defaults: {done: false}
+  });
+
+  var remote = Task.Database.rest;
+
+  remote.map.put( 45, {id: 45, name: 't45'} );
+  remote.map.put( 46, {id: 46, name: 't46'} );
+
+  expect( 5 );
+
+  $injector.invoke(function($rootScope, NeuroResolve)
+  {
+    var resolve = NeuroResolve.fetchAll( TaskName );
+    var promise = $injector.invoke( resolve );
+
+    promise.then(function(resolved)
+    {
+      strictEqual( resolved.length, 2 );
+      strictEqual( resolved[0].id, 45 );
+      strictEqual( resolved[0].name, 't45' );
+      strictEqual( resolved[1].id, 46 );
+      strictEqual( resolved[1].name, 't46' );
+
+      done();
+    });
+
+    $rootScope.$digest();
+
+  });
+
+});
+
 test( 'NeuroResolve.query', function(assert)
 {
   var done = assert.async();

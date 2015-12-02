@@ -4,6 +4,7 @@ var gulp = require('gulp');
 var sourcemaps = require('gulp-sourcemaps');
 var plugins = require('gulp-load-plugins')();
 var gutil = require('gulp-util');
+var qunit = require('gulp-qunit');
 var shell = require('gulp-shell');
 
 var build = {
@@ -14,6 +15,12 @@ var build = {
     './src/neurosync-angular.js'
   ]
 };
+
+var tests = [
+  './test/index.html', 
+  './test/index-ngRoute.html', 
+  './test/index-ui.router.html'
+];
 
 var executeMinifiedBuild = function(props)
 {
@@ -39,6 +46,15 @@ var executeBuild = function(props)
     ;
   };
 };
+
+var executeTest = function(file)
+{
+  return function() {
+    return gulp.src( file ).pipe( qunit() );
+  };
+};
+
+gulp.task( 'test', executeTest( tests ) );
 
 gulp.task( 'js:min', executeMinifiedBuild( build ) );
 gulp.task( 'js', executeBuild( build ) );
