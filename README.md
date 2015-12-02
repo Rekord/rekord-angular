@@ -93,3 +93,28 @@ UI before data is completely loaded. Route parameters can also be used by specif
 }
 
 ```
+
+### NeuroSelect
+
+NeuroSelect allows a user to make models in a collection selectable - once the
+user is done selecting models they can be retrieved with `$selection()`. This
+pairs perfectly with ngModel & checkboxes.
+
+```javascript
+
+var options = Task.all().selectable();
+
+options[ task0.id ] = true;
+options[ task1.id ] = false;
+options[ task2.id ] = true;
+options[ task3.id ] = true;
+
+options.$selection(); // [task0, task2, task3]
+
+// Existing selected options
+var options = Task.all().selectable( currentUser.tasks );
+
+// Set what's currently selected
+options.$select( currentUers.tasks );
+
+```

@@ -14,10 +14,12 @@
     .constant( 'NeuroSettings', NeuroSettings )
     .factory( 'Neuro', ['$http', NeuroFactory] )
     .factory( 'NeuroBind', NeuroBindFactory )
+    .factory( 'NeuroSelect', NeuroSelectFactory )
   ;
 
   global.NeuroBind = NeuroBind;
   global.NeuroResolve = NeuroResolve;
+  global.NeuroSelect = NeuroSelect;
 
   function NeuroFactory($http)
   {
@@ -111,6 +113,11 @@
     return NeuroBind;
   }
 
+  function NeuroSelectFactory()
+  {
+    return NeuroSelect;
+  }
+
   function NeuroBind( scope, target, callback )
   {
     if ( !(this instanceof NeuroBind) ) return new NeuroBind( scope, target, callback );
@@ -127,11 +134,11 @@
 
   NeuroBind.Events = 
   {
-    Database: 'updated',
-    Model: 'saved removed remote-update relation-update',
-    Collection: 'add adds sort remove reset',
-    Page: 'change',
-    Scope: '$destroy'
+    Database:     'updated',
+    Model:        'saved removed remote-update relation-update',
+    Collection:   'add adds sort remove reset',
+    Page:         'change',
+    Scope:        '$destroy'
   };
 
   NeuroBind.prototype = 
@@ -210,6 +217,151 @@
         });
       };
     }
+  };
+
+  function NeuroSelect(source, select)
+  {
+    this.$onRemove = Neuro.copyFunction( this.$handleRemove );
+    this.$onRemoves = Neuro.copyFunction( this.$handleRemoves );
+    this.$onCleared = Neuro.copyFunction( this.$handleCleared );
+    this.$onReset = Neuro.copyFunction( this.$handleReset );
+
+    this.$reset( source );
+    this.$select( select );
+  }
+
+  NeuroSelect.prototype = 
+  {
+
+    $reset: function(source)
+    {
+      if ( this.$source !== source )
+      {
+        if ( this.$source )
+        {
+          this.$disconnect();
+        }
+
+        this.$source = source;
+        this.$connect();
+      }
+    },
+
+    $connect: function()
+    {
+      this.$source.on( Neuro.Collection.Events.Remove, this.$onRemove, this );
+      this.$source.on( Neuro.Collection.Events.Removes, this.$onRemoves, this );
+      this.$source.on( Neuro.Collection.Events.Cleared, this.$onCleared, this );
+      this.$source.on( Neuro.Collection.Events.Reset, this.$onReset, this );
+    },
+
+    $disconnect: function()
+    {
+      this.$source.off( Neuro.Collection.Events.Remove, this.$onRemove );
+      this.$source.off( Neuro.Collection.Events.Removes, this.$onRemoves );
+      this.$source.off( Neuro.Collection.Events.Cleared, this.$onCleared );
+      this.$source.off( Neuro.Collection.Events.Reset, this.$onReset );
+    },
+
+    $select: function(select)
+    {
+      if ( angular.isArray( select ) )
+      {
+        var db = this.$source.database;
+        var remove = {};
+
+        for (var key in this)
+        {
+          if ( typeof this[ key ] === 'boolean' )
+          {
+            remove[ key ] = this[ key ];
+          }
+        }
+
+        for (var i = 0; i < select.length; i++)
+        {
+          var key = db.buildKeyFromInput( select[ i ] );
+
+          this[ key ] = true;
+
+          delete remove[ key ];
+        }
+
+        for (var key in remove)
+        {
+          delete this[ key ];
+        }
+      }
+    },
+
+    $selection: function(out)
+    {
+      var source = this.$source;
+      var selection = out || [];
+
+      for (var key in this)
+      {
+        if ( this[ key ] === true )
+        {
+          var model = source.get( key );
+
+          if ( model )
+          {
+            selection.push( model );
+          }
+        }
+      }
+
+      return selection;
+    },
+
+    $handleRemove: function(removed)
+    {
+      var db = this.$source.database;
+      var key = db.buildKeyFromInput( removed );
+
+      delete this[ key ];
+    },
+
+    $handleRemoves: function(removed)
+    {
+      for (var i = 0; i < removed.length; i++)
+      {
+        this.$handleRemove( removed[i] );
+      }
+    },
+
+    $handleCleared: function()
+    {
+      for (var key in this)
+      {
+        if ( typeof this[ key ] === 'boolean' )
+        {
+          delete this[ key ];
+        }
+      }
+    },
+
+    $handleReset: function()
+    {
+      var source = this.$source;
+
+      for (var key in this)
+      {
+        if ( typeof this[ key ] === 'boolean' )
+        {
+          if ( !source.has( key ) )
+          {
+            delete this[ key ];
+          }
+        }
+      }
+    }
+  };
+
+  Neuro.ModelCollection.prototype.selectable = function(select)
+  {
+    return new NeuroSelect( this, select );
   };
 
   var TEMPLATE_REGEX = /\{([^\}]+)\}/;

@@ -179,6 +179,40 @@ test( 'Page', function(assert)
 
 });
 
+module( 'NeuroSelect' );
+
+test( 'selectable', function(assert)
+{
+  var prefix = 'NeuroSelect_selectable_';
+
+  var TaskName = prefix + 'task';
+  var Task = Neuro({
+    name: TaskName,
+    fields: ['name', 'done'],
+    defaults: {done: false}
+  });
+
+  var t0 = Task.create({id: '1', name: 't0'});
+  var t1 = Task.create({id: '2', name: 't1'});
+  var t2 = Task.create({id: '3', name: 't2'});
+
+  var selection = Task.all().selectable( [t1] );
+
+  strictEqual( selection[ t0.id ], void 0 );
+  strictEqual( selection[ t1.id ], true );
+  strictEqual( selection[ t2.id ], void 0 );
+
+  selection[ t0.id ] = true;
+  selection[ t1.id ] = false;
+  selection[ t2.id ] = true;
+
+  deepEqual( selection.$selection(), [t0, t2] );
+
+  t0.$remove();
+
+  deepEqual( selection.$selection(), [t2] );
+});
+
 module( 'NeuroResolve' );
 
 test( 'NeuroResolve.model', function(assert)
