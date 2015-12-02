@@ -1,5 +1,9 @@
 # neurosync-angular
 
+[![Build Status](https://travis-ci.org/ClickerMonkey/neurosync-angular.svg)](https://travis-ci.org/ClickerMonkey/neurosync-angular)
+[![Dependency Status](https://david-dm.org/ClickerMonkey/neurosync-angular.svg)](https://david-dm.org/ClickerMonkey/neurosync-angular)
+[![devDependency Status](https://david-dm.org/ClickerMonkey/neurosync-angular/dev-status.svg)](https://david-dm.org/ClickerMonkey/neurosync-angular#info=devDependencies)
+
 A neurosync binding to angular - implementing Neuro.rest.
 
 The easiest way to install is by using bower via `bower install neurosync-angular`.
