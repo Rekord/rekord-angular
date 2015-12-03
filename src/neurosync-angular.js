@@ -468,7 +468,7 @@
     var cache = false;
     var cachedValue = void 0;
 
-    var factory = ['$q', function resolve($q, routing) 
+    function factory($q, routing) 
     {
       var defer = $q.defer();
 
@@ -480,7 +480,7 @@
       {
         var routeParams = paramResolver( routing );
         var templateResolver = buildTemplateResolver( routeParams );
-        
+
         if ( cache )
         {
           defer.promise.then(function(resolvedValue)
@@ -496,16 +496,37 @@
       }
 
       return defer.promise;
-    }];
+    }
+
+    factory.$inject = ['$q'];
 
     if ( param ) 
     {
-      factory.splice( 1, 0, param );
+      factory.$inject.push( param );
     }
 
     factory.cache = function()
     {
       cache = true;
+
+      return factory;
+    };
+
+    factory.inject = function()
+    {
+      for (var i = 0; i < arguments.length; i++)
+      {
+        var arg = arguments[ i ];
+        
+        if ( Neuro.isArray( arg ) )
+        {
+          factory.$inject.push.apply( factory.$inject, arg );
+        }
+        else
+        {
+          factory.$inject.push( arg );
+        }
+      }
 
       return factory;
     };

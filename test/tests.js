@@ -355,7 +355,7 @@ test( 'NeuroResolve.fetch', function(assert)
 test( 'NeuroResolve.fetch cache', function(assert)
 {
   var done = assert.async();
-  var prefix = 'NeuroResolve_fetch_';
+  var prefix = 'NeuroResolve_fetch_cache_';
 
   var TaskName = prefix + 'task';
   var Task = Neuro({
@@ -385,6 +385,59 @@ test( 'NeuroResolve.fetch cache', function(assert)
 
     remote.map.put( 45, {id: 45, name: 't45Nope' } );
     promise = $injector.invoke( resolve );
+
+    promise.then(function(resolved)
+    {
+      strictEqual( resolved.id, 45 );
+      strictEqual( resolved.name, 't45' );
+
+      done();
+    });
+
+    $rootScope.$digest();
+  });
+
+});
+
+test( 'NeuroResolve.fetch inject', function(assert)
+{
+  expect( 5 );
+
+  var TestResolved = false;
+
+  angular.module('NeuroResolve.fetch.inject', [])
+    .factory('Test', function() {
+      return (TestResolved = true);
+    })
+  ;
+
+  var $injector = angular.injector(['ng', 'ngMock', 'neurosync', 'NeuroResolve.fetch.inject']);
+
+  var done = assert.async();
+  var prefix = 'NeuroResolve_fetch_inject_';
+
+  var TaskName = prefix + 'task';
+  var Task = Neuro({
+    name: TaskName,
+    fields: ['name', 'done'],
+    defaults: {done: false}
+  });
+
+  var remote = Task.Database.rest;
+
+  remote.map.put( 45, {id: 45, name: 't45'} );
+
+  $injector.invoke(function($rootScope, NeuroResolve)
+  {
+    notOk( TestResolved, 'Test Not Yet Resolved' );
+
+    var resolve = NeuroResolve.fetch( TaskName, 45 ).inject('Test');
+
+    notOk( TestResolved, 'Test Still Not Resolved' );
+
+    var promise = $injector.invoke( resolve );
+
+    ok( TestResolved, 'Test Resolved' );
 
     promise.then(function(resolved)
     {
