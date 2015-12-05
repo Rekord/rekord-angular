@@ -540,9 +540,12 @@
     {
       model.Database.grabModel( templateResolver( input ), function(instance) 
       {
-        if ( instance ) {
+        if ( instance ) 
+        {
           defer.resolve( instance );
-        } else {
+        } 
+        else 
+        {
           defer.reject();
         }
       });
@@ -553,7 +556,26 @@
   {
     return NeuroResolve.factory( name, function(model, defer, templateResolver) 
     {
-      defer.resolve( model.fetch( templateResolver( input ) ) );
+      var db = model.Database;
+      var key = db.buildKeyFromInput( templateResolver( input ) );
+      var instance = db.get( key );
+
+      if ( !instance )
+      {
+        instance = db.buildObjectFromKey( key );
+
+        if ( Neuro.isObject( input ) )
+        {
+          instance.$set( input );
+        }
+      }
+
+      instance.$once( Neuro.Model.Events.RemoteGets, function()
+      {
+        defer.resolve( instance );
+      });
+
+      instance.$refresh();
     });
   };
 
@@ -578,7 +600,19 @@
       }
       else
       {
-        defer.resolve( model.create( properties ) );
+        var instance = model.create( properties );
+
+        if ( instance.$isSaved() )
+        {
+          defer.resolve( instance );
+        }
+        else
+        {
+          instance.$once( Neuro.Model.Events.RemoteSaves, function()
+          {
+            defer.resolve( instance );
+          });
+        }
       }
     });
   };
