@@ -226,10 +226,10 @@
 
   function NeuroSelect(source, select, fill)
   {
-    this.$onRemove = Neuro.copyFunction( this.$handleRemove );
-    this.$onRemoves = Neuro.copyFunction( this.$handleRemoves );
-    this.$onCleared = Neuro.copyFunction( this.$handleCleared );
-    this.$onReset = Neuro.copyFunction( this.$handleReset );
+    this.$onRemove  = Neuro.bind( this, this.$handleRemove );
+    this.$onRemoves = Neuro.bind( this, this.$handleRemoves );
+    this.$onCleared = Neuro.bind( this, this.$handleCleared );
+    this.$onReset   = Neuro.bind( this, this.$handleReset );
 
     this.$reset( source );
     this.$select( select, fill );
@@ -254,10 +254,10 @@
 
     $connect: function()
     {
-      this.$source.on( Neuro.Collection.Events.Remove, this.$onRemove, this );
-      this.$source.on( Neuro.Collection.Events.Removes, this.$onRemoves, this );
-      this.$source.on( Neuro.Collection.Events.Cleared, this.$onCleared, this );
-      this.$source.on( Neuro.Collection.Events.Reset, this.$onReset, this );
+      this.$source.on( Neuro.Collection.Events.Remove, this.$onRemove );
+      this.$source.on( Neuro.Collection.Events.Removes, this.$onRemoves );
+      this.$source.on( Neuro.Collection.Events.Cleared, this.$onCleared );
+      this.$source.on( Neuro.Collection.Events.Reset, this.$onReset );
     },
 
     $disconnect: function()
@@ -517,7 +517,7 @@
       for (var i = 0; i < arguments.length; i++)
       {
         var arg = arguments[ i ];
-        
+
         if ( Neuro.isArray( arg ) )
         {
           factory.$inject.push.apply( factory.$inject, arg );
