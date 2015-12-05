@@ -10,20 +10,20 @@
   };
 
   app
-    .constant( 'NeuroResolve', NeuroResolve )
     .constant( 'NeuroSettings', NeuroSettings )
-    .factory( 'Neuro', ['$http', NeuroFactory] )
-    .factory( 'NeuroBind', NeuroBindFactory )
-    .factory( 'NeuroSelect', NeuroSelectFactory )
+    .constant( 'Neuro', Neuro )
+    .constant( 'NeuroBind', NeuroBind )
+    .constant( 'NeuroResolve', NeuroResolve )
+    .constant( 'NeuroSelect', NeuroSelect )
+    .run( ['$http', InitializeNeuro] )
   ;
 
   global.NeuroBind = NeuroBind;
   global.NeuroResolve = NeuroResolve;
   global.NeuroSelect = NeuroSelect;
 
-  function NeuroFactory($http)
+  function InitializeNeuro($http)
   {
-
     Neuro.rest = function(database)
     {
 
@@ -109,18 +109,6 @@
     Neuro.Debugs.ScopeEval = 100000;
 
     Neuro.listenToNetworkStatus();
-
-    return Neuro;
-  }
-
-  function NeuroBindFactory()
-  {
-    return NeuroBind;
-  }
-
-  function NeuroSelectFactory()
-  {
-    return NeuroSelect;
   }
 
   function NeuroBind( scope, target, callback )
@@ -669,4 +657,4 @@
     });
   };
 
-})( angular.module('neurosync', []), window );
+})( angular.module('neurosync', []), this );

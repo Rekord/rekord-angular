@@ -5,6 +5,50 @@ QUnit.config.reorder = false;
 
 Neuro.setOnline();
 
+angular.module( 'neurosync-test', [] )
+  .run(function()
+  {
+    Neuro.store = function(database)
+    {
+      var store = Neuro.store[ database.name ];
+
+      if ( !store )
+      {
+        store = Neuro.store[ database.name ] = new TestStore();
+      }
+
+      return store;
+    };
+
+    Neuro.live = function(database, onPublish)
+    {
+      var live = Neuro.live[ database.name ];
+
+      if ( !live )
+      {
+        live = Neuro.live[ database.name ] = new TestLive( database, onPublish );
+      }
+
+      live.onPublish = onPublish;
+
+      return live.handleMessage();
+    };
+
+    Neuro.rest = function(database)
+    {
+      var rest = Neuro.rest[ database.name ];
+
+      if ( !rest )
+      {
+        rest = Neuro.rest[ database.name ] = new TestRest();
+      }
+
+      return rest;
+    };
+
+  })
+;
+
 // Extra Assertions
 
 function isInstance(model, Class, message)
@@ -30,7 +74,7 @@ function ngRouteInjector()
 
   angular.module('ngRoute', []).constant('$route', $route);
 
-  return angular.injector(['ng', 'ngMock', 'neurosync', 'ngRoute']);
+  return angular.injector(['ng', 'ngMock', 'neurosync', 'ngRoute', 'neurosync-test']);
 }
 
 function uiRouterInjector()
@@ -39,7 +83,7 @@ function uiRouterInjector()
   
   angular.module('ui.router', []).constant('$stateParams', $stateParams);
 
-  return angular.injector(['ng', 'ngMock', 'neurosync', 'ui.router']);
+  return angular.injector(['ng', 'ngMock', 'neurosync', 'ui.router', 'neurosync-test']);
 }
 
 function wait(millis, callback)
@@ -82,18 +126,6 @@ MockScope.prototype =
 };
 
 // Neuro.store."database name".(put|remove|all)
-
-Neuro.store = function(database)
-{
-  var store = Neuro.store[ database.name ];
-
-  if ( !store )
-  {
-    store = Neuro.store[ database.name ] = new TestStore();
-  }
-
-  return store;
-};
 
 function TestStore()
 {
@@ -191,20 +223,6 @@ TestStore.prototype =
 
 // Neuro.live."database name".(save|remove)
 
-Neuro.live = function(database, onPublish)
-{
-  var live = Neuro.live[ database.name ];
-
-  if ( !live )
-  {
-    live = Neuro.live[ database.name ] = new TestLive( database, onPublish );
-  }
-
-  live.onPublish = onPublish;
-
-  return live.handleMessage();
-};
-
 function TestLive(database, onPublish)
 {
   this.database = database;
@@ -255,18 +273,6 @@ TestLive.prototype =
 };
 
 // Neuro.rest."database name".(all|create|update|remove)
- 
-Neuro.rest = function(database)
-{
-  var rest = Neuro.rest[ database.name ];
-
-  if ( !rest )
-  {
-    rest = Neuro.rest[ database.name ] = new TestRest();
-  }
-
-  return rest;
-};
 
 function TestRest()
 {

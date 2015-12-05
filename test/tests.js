@@ -1,6 +1,6 @@
 module( 'NeuroBind' );
 
-var $injector = angular.injector(['ng', 'ngMock', 'neurosync']);
+var $injector = angular.injector(['ng', 'ngMock', 'neurosync', 'neurosync-test']);
 
 test( 'Database', function(assert)
 {
@@ -411,7 +411,7 @@ test( 'NeuroResolve.fetch inject', function(assert)
     })
   ;
 
-  var $injector = angular.injector(['ng', 'ngMock', 'neurosync', 'NeuroResolve.fetch.inject']);
+  var $injector = angular.injector(['ng', 'ngMock', 'neurosync', 'neurosync-test', 'NeuroResolve.fetch.inject']);
 
   var done = assert.async();
   var prefix = 'NeuroResolve_fetch_inject_';
