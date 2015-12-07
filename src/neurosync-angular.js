@@ -265,7 +265,7 @@
 
         for (var key in this)
         {
-          if ( typeof this[ key ] === 'boolean' )
+          if ( Neuro.isBoolean( this[ key ] ) )
           {
             remove[ key ] = this[ key ];
           }
@@ -344,7 +344,7 @@
     {
       for (var key in this)
       {
-        if ( typeof this[ key ] === 'boolean' )
+        if ( Neuro.isBoolean( this[ key ] ) )
         {
           delete this[ key ];
         }
@@ -357,7 +357,7 @@
 
       for (var key in this)
       {
-        if ( typeof this[ key ] === 'boolean' )
+        if ( Neuro.isBoolean( this[ key ] ) )
         {
           if ( !source.has( key ) )
           {
@@ -372,16 +372,6 @@
   {
     return new NeuroSelect( this, select, fill );
   };
-
-  var TEMPLATE_REGEX = /\{([^\}]+)\}/;
-
-  function buildTemplate(template, params)
-  {
-    return template.replace( TEMPLATE_REGEX, function(match, prop)
-    {
-      return prop in params ? params[ prop ] : '';
-    });
-  }
 
   function hasModule(moduleName)
   {
@@ -438,9 +428,9 @@
   {
     return function(text) 
     {
-      if (Neuro.isString( text ) && routeParams ) 
+      if ( Neuro.isString( text ) && routeParams ) 
       {
-        return buildTemplate( text, routeParams );
+        return Neuro.format( text, routeParams );
       }
 
       return text;
