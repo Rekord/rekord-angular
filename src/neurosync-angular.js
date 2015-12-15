@@ -24,79 +24,83 @@
 
   function InitializeNeuro($http)
   {
-    Neuro.rest = function(database)
+    var Neuro_debug = Neuro.debug;
+
+    if ( !Neuro.restSet )
     {
-
-      function removeTrailingSlash(x)
+      Neuro.rest = function(database)
       {
-        return x.charAt(x.length - 1) === '/' ? x.substring(0, x.length - 1) : x;
-      }
-
-      function execute( method, data, url, success, failure, offlineValue )
-      {
-        Neuro.debug( Neuro.Debugs.REST, this, method, url, data );
-
-        if ( Neuro.forceOffline )
+        function removeTrailingSlash(x)
         {
-          failure( offlineValue, 0 );
+          return x.charAt(x.length - 1) === '/' ? x.substring(0, x.length - 1) : x;
         }
-        else
+
+        function execute( method, data, url, success, failure, offlineValue )
         {
-          function onRestSuccess(response) 
+          Neuro.debug( Neuro.Debugs.REST, this, method, url, data );
+
+          if ( Neuro.forceOffline )
           {
-            success( response.data );
+            failure( offlineValue, 0 );
           }
-
-          function onRestError(response) 
+          else
           {
-            failure( response.data, response.status );
+            function onRestSuccess(response) 
+            {
+              success( response.data );
+            }
+
+            function onRestError(response) 
+            {
+              failure( response.data, response.status );
+            }
+
+            var options = 
+            {
+              method: method,
+              data: data,
+              url: url
+            };
+
+            $http( options ).then( onRestSuccess, onRestError );
           }
-
-          var options = 
+        }
+        
+        return {
+          all: function( success, failure )
           {
-            method: method,
-            data: data,
-            url: url
-          };
+            execute( 'GET', undefined, database.api, success, failure, [] );
+          },
+          get: function( model, success, failure )
+          {
+            execute( 'GET', undefined, removeTrailingSlash( database.api + model.$key() ), success, failure );
+          },
+          create: function( model, encoded, success, failure )
+          {
+            execute( 'POST', encoded, removeTrailingSlash( database.api ), success, failure, {} );
+          },
+          update: function( model, encoded, success, failure )
+          {
+            execute( 'PUT', encoded, removeTrailingSlash( database.api + model.$key() ), success, failure, {} );
+          },
+          remove: function( model, success, failure )
+          {
+            execute( 'DELETE', undefined, removeTrailingSlash( database.api + model.$key() ), success, failure, {} );
+          },
+          query: function( query, success, failure )
+          {
+            var method = query.method || 'GET';
+            var data = query.data || undefined;
+            var url = query.url || query;
 
-          $http( options ).then( onRestSuccess, onRestError );
-        }
-      }
-      
-      return {
-        all: function( success, failure )
-        {
-          execute( 'GET', undefined, database.api, success, failure, [] );
-        },
-        get: function( model, success, failure )
-        {
-          execute( 'GET', undefined, removeTrailingSlash( database.api + model.$key() ), success, failure );
-        },
-        create: function( model, encoded, success, failure )
-        {
-          execute( 'POST', encoded, removeTrailingSlash( database.api ), success, failure, {} );
-        },
-        update: function( model, encoded, success, failure )
-        {
-          execute( 'PUT', encoded, removeTrailingSlash( database.api + model.$key() ), success, failure, {} );
-        },
-        remove: function( model, success, failure )
-        {
-          execute( 'DELETE', undefined, removeTrailingSlash( database.api + model.$key() ), success, failure, {} );
-        },
-        query: function( query, success, failure )
-        {
-          var method = query.method || 'GET';
-          var data = query.data || undefined;
-          var url = query.url || query;
+            execute( method, data, url, success, failure );
+          }
+        };
 
-          execute( method, data, url, success, failure );
-        }
       };
 
-    };
-
-    var Neuro_debug = Neuro.debug;
+      Neuro.restSet = true;
+    }
 
     Neuro.debug = function()
     {
