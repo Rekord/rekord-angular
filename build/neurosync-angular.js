@@ -516,11 +516,26 @@
     return factory;
   };
 
+  function ResolveInput(obj, resolver)
+  {
+    if ( Neuro.isObject( obj ) )
+    {
+      for (var prop in obj)
+      {
+        obj[ prop ] = resolver( obj[ prop ] );
+      }
+    }
+
+    return resolver( obj );
+  }
+
   NeuroResolve.model = function( name, input )
   {
     return NeuroResolve.factory( name, function(model, defer, templateResolver) 
     {
-      model.Database.grabModel( templateResolver( input ), function(instance) 
+      input = ResolveInput( input, templateResolver );
+
+      model.Database.grabModel( input, function(instance) 
       {
         if ( instance ) 
         {
@@ -538,26 +553,12 @@
   {
     return NeuroResolve.factory( name, function(model, defer, templateResolver) 
     {
-      var db = model.Database;
-      var key = db.buildKeyFromInput( templateResolver( input ) );
-      var instance = db.get( key );
+      input = ResolveInput( input, templateResolver );
 
-      if ( !instance )
-      {
-        instance = db.buildObjectFromKey( key );
-
-        if ( Neuro.isObject( input ) )
-        {
-          instance.$set( input );
-        }
-      }
-
-      instance.$once( Neuro.Model.Events.RemoteGets, function()
+      model.fetch( input, function(instance)
       {
         defer.resolve( instance );
       });
-
-      instance.$refresh();
     });
   };
 
@@ -572,10 +573,36 @@
     });
   };
 
+  NeuroResolve.grab = function( name, input )
+  {
+    return NeuroResolve.factory( name, function(model, defer, templateResolver) 
+    {
+      input = ResolveInput( input, templateResolver );
+
+      model.grab( input, function(instance)
+      {
+        defer.resolve( instance );
+      });
+    });
+  };
+
+  NeuroResolve.grabAll = function( name )
+  {
+    return NeuroResolve.factory( name, function(model, defer, templateResolver) 
+    {
+      model.grabAll(function(models)
+      {
+        defer.resolve( models );
+      });
+    });
+  };
+
   NeuroResolve.create = function( name, properties, dontSave )
   {
     return NeuroResolve.factory( name, function(model, defer, templateResolver) 
     {
+      ResolveInput( properties, templateResolver );
+
       if ( dontSave )
       {
         defer.resolve( new model( properties ) );
@@ -632,17 +659,8 @@
   {
     return NeuroResolve.factory( name, function(model, defer, templateResolver)
     {
-      if ( Neuro.isObject( whereProperties ) )
-      {
-        for (var prop in whereProperties)
-        {
-          whereProperties[ prop ] = templateResolver( whereProperties[ prop ] );
-        }
-      }
-      if ( Neuro.isString( whereValue ) )
-      {
-        whereValue = templateResolver( whereValue );
-      }
+      whereProperties = ResolveInput( whereProperties, templateResolver );
+      whereValue = ResolveInput( whereValue, templateResolver );
 
       model.Database.ready(function() 
       {

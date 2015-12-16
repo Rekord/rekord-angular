@@ -3,6 +3,8 @@
 
 QUnit.config.reorder = false;
 
+Neuro.autoload = true;
+
 Neuro.setOnline();
 
 angular.module( 'neurosync-test', [] )
@@ -20,18 +22,16 @@ angular.module( 'neurosync-test', [] )
       return store;
     };
 
-    Neuro.live = function(database, onPublish)
+    Neuro.live = function(database)
     {
       var live = Neuro.live[ database.name ];
 
       if ( !live )
       {
-        live = Neuro.live[ database.name ] = new TestLive( database, onPublish );
+        live = Neuro.live[ database.name ] = new TestLive( database );
       }
 
-      live.onPublish = onPublish;
-
-      return live.handleMessage();
+      return live;
     };
 
     Neuro.rest = function(database)
@@ -86,9 +86,59 @@ function uiRouterInjector()
   return angular.injector(['ng', 'ngMock', 'neurosync', 'ui.router', 'neurosync-test']);
 }
 
-function wait(millis, callback)
+// Extending Assert
+
+QUnit.assert.timer = function()
 {
-  setTimeout( callback, millis );
+  return QUnit.assert.currentTimer = new TestTimer();
+};
+
+function TestTimer()
+{
+  this.callbacks = [];
+  this.time = 0;
+}
+
+TestTimer.prototype = 
+{
+  wait: function(millis, func)
+  {
+    var callbacks = this.callbacks;
+    var at = millis + this.time;
+
+    if ( callbacks[ at ] )
+    {
+      callbacks[ at ].push( func );
+    }
+    else
+    {
+      callbacks[ at ] = [ func ];
+    }
+  },
+  run: function()
+  {
+    var callbacks = this.callbacks;
+
+    for (var i = 0; i < callbacks.length; i++)
+    {
+      var calls = callbacks[ i ];
+
+      this.time = i;
+
+      if ( calls )
+      {
+        for (var k = 0; k < calls.length; k++)
+        {
+          calls[ k ]();
+        }
+      }
+    }
+  }
+};
+
+function wait(millis, func)
+{
+  QUnit.assert.currentTimer.wait( millis, func );
 }
 
 // Mock Angular Objects
@@ -125,6 +175,7 @@ MockScope.prototype =
   }
 };
 
+
 // Neuro.store."database name".(put|remove|all)
 
 function TestStore()
@@ -143,11 +194,11 @@ TestStore.prototype =
 
     if ( store.delay > 0 )
     {
-      setTimeout(function()
+      wait( store.delay, function()
       {
         store.finish( success, failure, arg0, arg1 );
 
-      }, store.delay );
+      });
     }
     else
     {
@@ -223,52 +274,51 @@ TestStore.prototype =
 
 // Neuro.live."database name".(save|remove)
 
-function TestLive(database, onPublish)
+function TestLive(database)
 {
   this.database = database;
-  this.onPublish = onPublish;
   this.onHandleMessage = null;
   this.lastMessage = null;
 }
 
 TestLive.prototype = 
 {
-  save: function(data)
+  save: function(model, data)
+  {
+    this.lastMessage = {
+      op: 'SAVE',
+      key: model.$key(),
+      model: data
+    };
+
+    if ( this.onHandleMessage )
+    {
+      this.onHandleMessage( this.lastMessage );
+    }
+  },
+  remove: function(model)
+  {
+    this.lastMessage = {
+      op: 'REMOVE',
+      key: model.$key()
+    };
+
+    if ( this.onHandleMessage )
+    {
+      this.onHandleMessage( this.lastMessage );
+    }
+  },
+  liveSave: function(data)
   {
     var key = this.database.buildKeyFromInput( data );
 
-    this.onPublish({
-      op: Neuro.Database.Live.Save,
-      model: data,
-      key: key
-    });
+    this.database.liveSave( key, data );
   },
-  remove: function(input)
+  liveRemove: function(input)
   {
     var key = this.database.buildKeyFromInput( input );
 
-    this.onPublish({
-      op: Neuro.Database.Live.Remove,
-      key: key
-    });
-  },
-  handleMessage: function()
-  {
-    var live = this;
-
-    var onMessage = function(message)
-    {
-      live.lastMessage = message;
-      
-      if ( live.onHandleMessage )
-      {
-        live.onHandleMessage( message );
-      }
-    };
-
-    onMessage.live = live;
-
-    return onMessage;
+    this.database.liveRemove( key );
   }
 };
 
@@ -292,11 +342,11 @@ TestRest.prototype =
 
     if ( rest.delay > 0 )
     {
-      setTimeout(function()
+      wait( rest.delay, function()
       {
         rest.finish( success, failure, returnValue );
 
-      }, rest.delay );
+      });
     }
     else
     {

@@ -88,6 +88,12 @@ UI before data is completely loaded. Route parameters can also be used by specif
     tasks: NeuroResolve.where( 'task', 'done', false ),
     tasks: NeuroResolve.where( 'task', {parent_task: '{taskId}', done: true} ),
 
+    // Grabs the model with ID 34 - if it doesn't exist locally it is fetched.
+    task: NeuroResolve.grab( 'task', 34 ),
+
+    // Grabs all existing tasks - if non exist locally it is all fetched.
+    tasks: NeuroResolve.grabAll( 'task' )
+
   }
   ...
 }
