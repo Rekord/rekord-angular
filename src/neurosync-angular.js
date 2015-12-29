@@ -45,17 +45,17 @@
           }
           else
           {
-            function onRestSuccess(response) 
+            function onRestSuccess(response)
             {
               success( response.data );
             }
 
-            function onRestError(response) 
+            function onRestError(response)
             {
               failure( response.data, response.status );
             }
 
-            var options = 
+            var options =
             {
               method: method,
               data: data,
@@ -65,7 +65,7 @@
             $http( options ).then( onRestSuccess, onRestError );
           }
         }
-        
+
         return {
           all: function( success, failure )
           {
@@ -125,11 +125,11 @@
 
     this.notify = this.newNotification();
     this.release = this.newRelease();
-    
+
     this.on();
   }
 
-  NeuroBind.Events = 
+  NeuroBind.Events =
   {
     Database:     'updated',
     Model:        'saved removed remote-update relation-update',
@@ -138,7 +138,7 @@
     Scope:        '$destroy'
   };
 
-  NeuroBind.prototype = 
+  NeuroBind.prototype =
   {
     on: function()
     {
@@ -227,7 +227,7 @@
     this.$select( select, fill );
   }
 
-  NeuroSelect.prototype = 
+  NeuroSelect.prototype =
   {
 
     $reset: function(source)
@@ -400,9 +400,9 @@
 
   function getRouteParameter()
   {
-    return getRouteParameter.cached ? getRouteParameter.cached : getRouteParameter.cached = 
-      ( hasModule( 'ui.router' ) ? '$stateParams' : 
-        ( hasModule( 'ngRoute' ) ? '$route' : 
+    return getRouteParameter.cached ? getRouteParameter.cached : getRouteParameter.cached =
+      ( hasModule( 'ui.router' ) ? '$stateParams' :
+        ( hasModule( 'ngRoute' ) ? '$route' :
           false ) );
   }
 
@@ -430,9 +430,9 @@
 
   function buildTemplateResolver(routeParams)
   {
-    return function(text) 
+    return function(text)
     {
-      if ( Neuro.isString( text ) && routeParams ) 
+      if ( Neuro.isString( text ) && routeParams )
       {
         return Neuro.format( text, routeParams );
       }
@@ -450,7 +450,7 @@
     var cache = false;
     var cachedValue = void 0;
 
-    function factory($q, routing) 
+    function factory($q, routing)
     {
       var defer = $q.defer();
 
@@ -471,7 +471,7 @@
           });
         }
 
-        Neuro.get( name, function(model) 
+        Neuro.get( name, function(model)
         {
           callback( model, defer, templateResolver );
         });
@@ -482,7 +482,7 @@
 
     factory.$inject = ['$q'];
 
-    if ( param ) 
+    if ( param )
     {
       factory.$inject.push( param );
     }
@@ -520,10 +520,14 @@
   {
     if ( Neuro.isObject( obj ) )
     {
+      var resolved = {};
+
       for (var prop in obj)
       {
-        obj[ prop ] = resolver( obj[ prop ] );
+        resolved[ prop ] = resolver( obj[ prop ] );
       }
+
+      return resolved;
     }
 
     return resolver( obj );
@@ -531,17 +535,17 @@
 
   NeuroResolve.model = function( name, input )
   {
-    return NeuroResolve.factory( name, function(model, defer, templateResolver) 
+    return NeuroResolve.factory( name, function(model, defer, templateResolver)
     {
-      input = ResolveInput( input, templateResolver );
+      var resolvedInput = ResolveInput( input, templateResolver );
 
-      model.Database.grabModel( input, function(instance) 
+      model.Database.grabModel( resolvedInput, function(instance)
       {
-        if ( instance ) 
+        if ( instance )
         {
           defer.resolve( instance );
-        } 
-        else 
+        }
+        else
         {
           defer.reject();
         }
@@ -551,11 +555,11 @@
 
   NeuroResolve.fetch = function( name, input )
   {
-    return NeuroResolve.factory( name, function(model, defer, templateResolver) 
+    return NeuroResolve.factory( name, function(model, defer, templateResolver)
     {
-      input = ResolveInput( input, templateResolver );
+      var resolvedInput = ResolveInput( input, templateResolver );
 
-      model.fetch( input, function(instance)
+      model.fetch( resolvedInput, function(instance)
       {
         defer.resolve( instance );
       });
@@ -564,7 +568,7 @@
 
   NeuroResolve.fetchAll = function( name )
   {
-    return NeuroResolve.factory( name, function(model, defer, templateResolver) 
+    return NeuroResolve.factory( name, function(model, defer, templateResolver)
     {
       model.fetchAll(function(models)
       {
@@ -575,11 +579,11 @@
 
   NeuroResolve.grab = function( name, input )
   {
-    return NeuroResolve.factory( name, function(model, defer, templateResolver) 
+    return NeuroResolve.factory( name, function(model, defer, templateResolver)
     {
-      input = ResolveInput( input, templateResolver );
+      var resolvedInput = ResolveInput( input, templateResolver );
 
-      model.grab( input, function(instance)
+      model.grab( resolvedInput, function(instance)
       {
         defer.resolve( instance );
       });
@@ -588,7 +592,7 @@
 
   NeuroResolve.grabAll = function( name )
   {
-    return NeuroResolve.factory( name, function(model, defer, templateResolver) 
+    return NeuroResolve.factory( name, function(model, defer, templateResolver)
     {
       model.grabAll(function(models)
       {
@@ -599,17 +603,17 @@
 
   NeuroResolve.create = function( name, properties, dontSave )
   {
-    return NeuroResolve.factory( name, function(model, defer, templateResolver) 
+    return NeuroResolve.factory( name, function(model, defer, templateResolver)
     {
-      ResolveInput( properties, templateResolver );
+      var resolvedProperties = ResolveInput( properties, templateResolver );
 
       if ( dontSave )
       {
-        defer.resolve( new model( properties ) );
+        defer.resolve( new model( resolvedProperties ) );
       }
       else
       {
-        var instance = model.create( properties );
+        var instance = model.create( resolvedProperties );
 
         if ( instance.$isSaved() )
         {
@@ -630,14 +634,15 @@
   {
     return NeuroResolve.factory( name, function(model, defer, templateResolver)
     {
-      var remoteQuery = model.query( templateResolver( query ) );
+      var resolvedQuery = ResolveInput( query, templateResolver );
+      var remoteQuery = model.query( resolvedQuery );
 
-      remoteQuery.success(function() 
+      remoteQuery.success(function()
       {
         defer.resolve( remoteQuery );
       });
 
-      remoteQuery.failure(function() 
+      remoteQuery.failure(function()
       {
         defer.reject();
       });
@@ -648,7 +653,7 @@
   {
     return NeuroResolve.factory( name, function(model, defer, templateResolver)
     {
-      model.Database.ready(function() 
+      model.Database.ready(function()
       {
         defer.resolve( model.all() );
       });
@@ -659,12 +664,12 @@
   {
     return NeuroResolve.factory( name, function(model, defer, templateResolver)
     {
-      whereProperties = ResolveInput( whereProperties, templateResolver );
-      whereValue = ResolveInput( whereValue, templateResolver );
+      var resolvedWhereProperties = ResolveInput( whereProperties, templateResolver );
+      var resolvedWhereValue = ResolveInput( whereValue, templateResolver );
 
-      model.Database.ready(function() 
+      model.Database.ready(function()
       {
-        defer.resolve( model.all().filtered( whereProperties, whereValue, whereEquals ) );
+        defer.resolve( model.all().filtered( resolvedWhereProperties, resolvedWhereValue, whereEquals ) );
       });
     });
   };
