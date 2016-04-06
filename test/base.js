@@ -3,44 +3,44 @@
 
 QUnit.config.reorder = false;
 
-Neuro.autoload = true;
+Rekord.autoload = true;
 
-Neuro.setOnline();
+Rekord.setOnline();
 
-angular.module( 'neurosync-test', [] )
+angular.module( 'rekord-test', [] )
   .run(function()
   {
-    Neuro.store = function(database)
+    Rekord.store = function(database)
     {
-      var store = Neuro.store[ database.name ];
+      var store = Rekord.store[ database.name ];
 
       if ( !store )
       {
-        store = Neuro.store[ database.name ] = new TestStore();
+        store = Rekord.store[ database.name ] = new TestStore();
       }
 
       return store;
     };
 
-    Neuro.live = function(database)
+    Rekord.live = function(database)
     {
-      var live = Neuro.live[ database.name ];
+      var live = Rekord.live[ database.name ];
 
       if ( !live )
       {
-        live = Neuro.live[ database.name ] = new TestLive( database );
+        live = Rekord.live[ database.name ] = new TestLive( database );
       }
 
       return live;
     };
 
-    Neuro.rest = function(database)
+    Rekord.rest = function(database)
     {
-      var rest = Neuro.rest[ database.name ];
+      var rest = Rekord.rest[ database.name ];
 
       if ( !rest )
       {
-        rest = Neuro.rest[ database.name ] = new TestRest();
+        rest = Rekord.rest[ database.name ] = new TestRest();
       }
 
       return rest;
@@ -61,9 +61,9 @@ function isType(value, type, message)
   strictEqual( typeof value, type, message );
 }
 
-function hasModel(neuro, key, model, message)
+function hasModel(rekord, key, model, message)
 {
-  strictEqual( neuro.Database.get( key ), model, message );
+  strictEqual( rekord.Database.get( key ), model, message );
 }
 
 // Utility Methods
@@ -74,7 +74,7 @@ function ngRouteInjector()
 
   angular.module('ngRoute', []).constant('$route', $route);
 
-  return angular.injector(['ng', 'ngMock', 'neurosync', 'ngRoute', 'neurosync-test']);
+  return angular.injector(['ng', 'ngMock', 'rekord', 'ngRoute', 'rekord-test']);
 }
 
 function uiRouterInjector()
@@ -83,7 +83,7 @@ function uiRouterInjector()
   
   angular.module('ui.router', []).constant('$stateParams', $stateParams);
 
-  return angular.injector(['ng', 'ngMock', 'neurosync', 'ui.router', 'neurosync-test']);
+  return angular.injector(['ng', 'ngMock', 'rekord', 'ui.router', 'rekord-test']);
 }
 
 // Extending Assert
@@ -176,11 +176,11 @@ MockScope.prototype =
 };
 
 
-// Neuro.store."database name".(put|remove|all)
+// Rekord.store."database name".(put|remove|all)
 
 function TestStore()
 {
-  this.map = new Neuro.Map();
+  this.map = new Rekord.Map();
   this.valid = true;
   this.delay = 0;
   this.lastKey = this.lastRecord = null;
@@ -272,7 +272,7 @@ TestStore.prototype =
 };
 
 
-// Neuro.live."database name".(save|remove)
+// Rekord.live."database name".(save|remove)
 
 function TestLive(database)
 {
@@ -322,12 +322,12 @@ TestLive.prototype =
   }
 };
 
-// Neuro.rest."database name".(all|create|update|remove)
+// Rekord.rest."database name".(all|create|update|remove)
 
 function TestRest()
 {
-  this.map = new Neuro.Map();
-  this.queries = new Neuro.Map();
+  this.map = new Rekord.Map();
+  this.queries = new Rekord.Map();
   this.status = 200;
   this.returnValue = false;
   this.delay = 0;
@@ -355,7 +355,7 @@ TestRest.prototype =
   },
   finish: function(success, failure, returnValue)
   {
-    var offline = !Neuro.online || Neuro.forceOffline;
+    var offline = !Rekord.online || Rekord.forceOffline;
     var status = offline ? 0 : this.status;
     var successful = status >= 200 && status < 300;
     var returnedValue = this.returnValue || returnValue;
@@ -409,7 +409,7 @@ TestRest.prototype =
     function onUpdate()
     {
       var existing = map.get( model.$key() );
-      Neuro.transfer( encoded, existing );
+      Rekord.transfer( encoded, existing );
       success.apply( this, arguments );
     }
 

@@ -8,11 +8,11 @@ var qunit = require('gulp-qunit');
 var shell = require('gulp-shell');
 
 var build = {
-  filename: 'neurosync-angular.js',
-  minified: 'neurosync-angular.min.js',
+  filename: 'rekord-angular.js',
+  minified: 'rekord-angular.min.js',
   output: './build/',
   include: [
-    './src/neurosync-angular.js'
+    './src/rekord-angular.js'
   ]
 };
 

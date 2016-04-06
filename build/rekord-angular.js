@@ -1,34 +1,34 @@
 (function (app, global, undefined)
 {
 
-  var NeuroSettings = {
+  var RekordSettings = {
     debug: false
   };
 
-  var NeuroResolve = {
+  var RekordResolve = {
 
   };
 
   app
-    .constant( 'NeuroSettings', NeuroSettings )
-    .constant( 'Neuro', Neuro )
-    .constant( 'NeuroBind', NeuroBind )
-    .constant( 'NeuroResolve', NeuroResolve )
-    .constant( 'NeuroSelect', NeuroSelect )
-    .run( ['$http', InitializeNeuro] )
+    .constant( 'RekordSettings', RekordSettings )
+    .constant( 'Rekord', Rekord )
+    .constant( 'RekordBind', RekordBind )
+    .constant( 'RekordResolve', RekordResolve )
+    .constant( 'RekordSelect', RekordSelect )
+    .run( ['$http', InitializeRekord] )
   ;
 
-  global.NeuroBind = NeuroBind;
-  global.NeuroResolve = NeuroResolve;
-  global.NeuroSelect = NeuroSelect;
+  global.RekordBind = RekordBind;
+  global.RekordResolve = RekordResolve;
+  global.RekordSelect = RekordSelect;
 
-  function InitializeNeuro($http)
+  function InitializeRekord($http)
   {
-    var Neuro_debug = Neuro.debug;
+    var Rekord_debug = Rekord.debug;
 
-    if ( !Neuro.restSet )
+    if ( !Rekord.restSet )
     {
-      Neuro.rest = function(database)
+      Rekord.rest = function(database)
       {
         function removeTrailingSlash(x)
         {
@@ -37,9 +37,9 @@
 
         function execute( method, data, url, success, failure, offlineValue )
         {
-          Neuro.debug( Neuro.Debugs.REST, this, method, url, data );
+          Rekord.debug( Rekord.Debugs.REST, this, method, url, data );
 
-          if ( Neuro.forceOffline )
+          if ( Rekord.forceOffline )
           {
             failure( offlineValue, 0 );
           }
@@ -99,25 +99,25 @@
 
       };
 
-      Neuro.restSet = true;
+      Rekord.restSet = true;
     }
 
-    Neuro.debug = function()
+    Rekord.debug = function()
     {
-      if ( NeuroSettings.debug )
+      if ( RekordSettings.debug )
       {
-        Neuro_debug.apply( this, arguments );
+        Rekord_debug.apply( this, arguments );
       }
     };
 
-    Neuro.Debugs.ScopeEval = 100000;
+    Rekord.Debugs.ScopeEval = 100000;
 
-    Neuro.listenToNetworkStatus();
+    Rekord.listenToNetworkStatus();
   }
 
-  function NeuroBind( scope, target, callback )
+  function RekordBind( scope, target, callback )
   {
-    if ( !(this instanceof NeuroBind) ) return new NeuroBind( scope, target, callback );
+    if ( !(this instanceof RekordBind) ) return new RekordBind( scope, target, callback );
 
     this.scope = scope;
     this.target = target;
@@ -129,7 +129,7 @@
     this.on();
   }
 
-  NeuroBind.Events =
+  RekordBind.Events =
   {
     Database:     'updated',
     Model:        'saved removed remote-update relation-update',
@@ -138,51 +138,51 @@
     Scope:        '$destroy'
   };
 
-  NeuroBind.prototype =
+  RekordBind.prototype =
   {
     on: function()
     {
-      if ( Neuro.isNeuro( this.target ) )
+      if ( Rekord.isRekord( this.target ) )
       {
         this.target = this.target.Database;
       }
 
-      if ( this.target instanceof Neuro.Database )
+      if ( this.target instanceof Rekord.Database )
       {
-        this.target.on( NeuroBind.Events.Database, this.notify  );
+        this.target.on( RekordBind.Events.Database, this.notify  );
       }
-      else if ( this.target instanceof Neuro.Model )
+      else if ( this.target instanceof Rekord.Model )
       {
-        this.target.$on( NeuroBind.Events.Model, this.notify );
+        this.target.$on( RekordBind.Events.Model, this.notify );
       }
-      else if ( this.target instanceof Neuro.Collection )
+      else if ( this.target instanceof Rekord.Collection )
       {
-        this.target.on( NeuroBind.Events.Collection, this.notify );
+        this.target.on( RekordBind.Events.Collection, this.notify );
       }
-      else if ( this.target instanceof Neuro.Page )
+      else if ( this.target instanceof Rekord.Page )
       {
-        this.target.on( NeuroBind.Events.Page, this.notify );
+        this.target.on( RekordBind.Events.Page, this.notify );
       }
 
-      this.scope.$on( NeuroBind.Events.Scope, this.release );
+      this.scope.$on( RekordBind.Events.Scope, this.release );
     },
     off: function()
     {
-      if ( this.target instanceof Neuro.Database )
+      if ( this.target instanceof Rekord.Database )
       {
-        this.target.off( NeuroBind.Events.Database, this.notify );
+        this.target.off( RekordBind.Events.Database, this.notify );
       }
-      else if ( this.target instanceof Neuro.Model )
+      else if ( this.target instanceof Rekord.Model )
       {
-        this.target.$off( NeuroBind.Events.Model, this.notify );
+        this.target.$off( RekordBind.Events.Model, this.notify );
       }
-      else if ( this.target instanceof Neuro.Collection )
+      else if ( this.target instanceof Rekord.Collection )
       {
-        this.target.off( NeuroBind.Events.Collection, this.notify );
+        this.target.off( RekordBind.Events.Collection, this.notify );
       }
-      else if ( this.target instanceof Neuro.Page )
+      else if ( this.target instanceof Rekord.Page )
       {
-        this.target.off( NeuroBind.Events.Page, this.notify );
+        this.target.off( RekordBind.Events.Page, this.notify );
       }
     },
     newRelease: function()
@@ -207,27 +207,27 @@
             binder.callback.apply( binder.target );
           }
 
-          if ( NeuroSettings.debug )
+          if ( RekordSettings.debug )
           {
-            Neuro.debug( '[Scope:$evalAsync]', binder.scope );
+            Rekord.debug( '[Scope:$evalAsync]', binder.scope );
           }
         });
       };
     }
   };
 
-  function NeuroSelect(source, select, fill)
+  function RekordSelect(source, select, fill)
   {
-    this.$onRemove  = Neuro.bind( this, this.$handleRemove );
-    this.$onRemoves = Neuro.bind( this, this.$handleRemoves );
-    this.$onCleared = Neuro.bind( this, this.$handleCleared );
-    this.$onReset   = Neuro.bind( this, this.$handleReset );
+    this.$onRemove  = Rekord.bind( this, this.$handleRemove );
+    this.$onRemoves = Rekord.bind( this, this.$handleRemoves );
+    this.$onCleared = Rekord.bind( this, this.$handleCleared );
+    this.$onReset   = Rekord.bind( this, this.$handleReset );
 
     this.$reset( source );
     this.$select( select, fill );
   }
 
-  NeuroSelect.prototype =
+  RekordSelect.prototype =
   {
 
     $reset: function(source)
@@ -246,30 +246,30 @@
 
     $connect: function()
     {
-      this.$source.on( Neuro.Collection.Events.Remove, this.$onRemove );
-      this.$source.on( Neuro.Collection.Events.Removes, this.$onRemoves );
-      this.$source.on( Neuro.Collection.Events.Cleared, this.$onCleared );
-      this.$source.on( Neuro.Collection.Events.Reset, this.$onReset );
+      this.$source.on( Rekord.Collection.Events.Remove, this.$onRemove );
+      this.$source.on( Rekord.Collection.Events.Removes, this.$onRemoves );
+      this.$source.on( Rekord.Collection.Events.Cleared, this.$onCleared );
+      this.$source.on( Rekord.Collection.Events.Reset, this.$onReset );
     },
 
     $disconnect: function()
     {
-      this.$source.off( Neuro.Collection.Events.Remove, this.$onRemove );
-      this.$source.off( Neuro.Collection.Events.Removes, this.$onRemoves );
-      this.$source.off( Neuro.Collection.Events.Cleared, this.$onCleared );
-      this.$source.off( Neuro.Collection.Events.Reset, this.$onReset );
+      this.$source.off( Rekord.Collection.Events.Remove, this.$onRemove );
+      this.$source.off( Rekord.Collection.Events.Removes, this.$onRemoves );
+      this.$source.off( Rekord.Collection.Events.Cleared, this.$onCleared );
+      this.$source.off( Rekord.Collection.Events.Reset, this.$onReset );
     },
 
     $select: function(select, fill)
     {
-      if ( Neuro.isArray( select ) )
+      if ( Rekord.isArray( select ) )
       {
         var db = this.$source.database;
         var remove = {};
 
         for (var key in this)
         {
-          if ( Neuro.isBoolean( this[ key ] ) )
+          if ( Rekord.isBoolean( this[ key ] ) )
           {
             remove[ key ] = this[ key ];
           }
@@ -348,7 +348,7 @@
     {
       for (var key in this)
       {
-        if ( Neuro.isBoolean( this[ key ] ) )
+        if ( Rekord.isBoolean( this[ key ] ) )
         {
           delete this[ key ];
         }
@@ -361,7 +361,7 @@
 
       for (var key in this)
       {
-        if ( Neuro.isBoolean( this[ key ] ) )
+        if ( Rekord.isBoolean( this[ key ] ) )
         {
           if ( !source.has( key ) )
           {
@@ -372,9 +372,9 @@
     }
   };
 
-  Neuro.ModelCollection.prototype.selectable = function(select, fill)
+  Rekord.ModelCollection.prototype.selectable = function(select, fill)
   {
-    return new NeuroSelect( this, select, fill );
+    return new RekordSelect( this, select, fill );
   };
 
   function hasModule(moduleName)
@@ -432,9 +432,9 @@
   {
     return function(text)
     {
-      if ( Neuro.isString( text ) && routeParams )
+      if ( Rekord.isString( text ) && routeParams )
       {
-        return Neuro.format( text, routeParams );
+        return Rekord.format( text, routeParams );
       }
 
       return text;
@@ -443,7 +443,7 @@
 
   getRouteParameter.cached = null;
 
-  NeuroResolve.factory = function( name, callback )
+  RekordResolve.factory = function( name, callback )
   {
     var param = getRouteParameter();
     var paramResolver = buildParamResolver();
@@ -471,7 +471,7 @@
           });
         }
 
-        Neuro.get( name, function(model)
+        Rekord.get( name, function(model)
         {
           callback( model, defer, templateResolver );
         });
@@ -500,7 +500,7 @@
       {
         var arg = arguments[ i ];
 
-        if ( Neuro.isArray( arg ) )
+        if ( Rekord.isArray( arg ) )
         {
           factory.$inject.push.apply( factory.$inject, arg );
         }
@@ -518,7 +518,7 @@
 
   function ResolveInput(obj, resolver)
   {
-    if ( Neuro.isObject( obj ) )
+    if ( Rekord.isObject( obj ) )
     {
       var resolved = {};
 
@@ -533,9 +533,9 @@
     return resolver( obj );
   }
 
-  NeuroResolve.model = function( name, input )
+  RekordResolve.model = function( name, input )
   {
-    return NeuroResolve.factory( name, function(model, defer, templateResolver)
+    return RekordResolve.factory( name, function(model, defer, templateResolver)
     {
       var resolvedInput = ResolveInput( input, templateResolver );
 
@@ -553,9 +553,9 @@
     });
   };
 
-  NeuroResolve.fetch = function( name, input )
+  RekordResolve.fetch = function( name, input )
   {
-    return NeuroResolve.factory( name, function(model, defer, templateResolver)
+    return RekordResolve.factory( name, function(model, defer, templateResolver)
     {
       var resolvedInput = ResolveInput( input, templateResolver );
 
@@ -566,9 +566,9 @@
     });
   };
 
-  NeuroResolve.fetchAll = function( name )
+  RekordResolve.fetchAll = function( name )
   {
-    return NeuroResolve.factory( name, function(model, defer, templateResolver)
+    return RekordResolve.factory( name, function(model, defer, templateResolver)
     {
       model.fetchAll(function(models)
       {
@@ -577,9 +577,9 @@
     });
   };
 
-  NeuroResolve.grab = function( name, input )
+  RekordResolve.grab = function( name, input )
   {
-    return NeuroResolve.factory( name, function(model, defer, templateResolver)
+    return RekordResolve.factory( name, function(model, defer, templateResolver)
     {
       var resolvedInput = ResolveInput( input, templateResolver );
 
@@ -590,9 +590,9 @@
     });
   };
 
-  NeuroResolve.grabAll = function( name )
+  RekordResolve.grabAll = function( name )
   {
-    return NeuroResolve.factory( name, function(model, defer, templateResolver)
+    return RekordResolve.factory( name, function(model, defer, templateResolver)
     {
       model.grabAll(function(models)
       {
@@ -601,9 +601,9 @@
     });
   };
 
-  NeuroResolve.create = function( name, properties, dontSave )
+  RekordResolve.create = function( name, properties, dontSave )
   {
-    return NeuroResolve.factory( name, function(model, defer, templateResolver)
+    return RekordResolve.factory( name, function(model, defer, templateResolver)
     {
       var resolvedProperties = ResolveInput( properties, templateResolver );
 
@@ -621,7 +621,7 @@
         }
         else
         {
-          instance.$once( Neuro.Model.Events.RemoteSaves, function()
+          instance.$once( Rekord.Model.Events.RemoteSaves, function()
           {
             defer.resolve( instance );
           });
@@ -630,9 +630,9 @@
     });
   };
 
-  NeuroResolve.query = function( name, query )
+  RekordResolve.query = function( name, query )
   {
-    return NeuroResolve.factory( name, function(model, defer, templateResolver)
+    return RekordResolve.factory( name, function(model, defer, templateResolver)
     {
       var resolvedQuery = ResolveInput( query, templateResolver );
       var remoteQuery = model.query( resolvedQuery );
@@ -649,9 +649,9 @@
     });
   };
 
-  NeuroResolve.all = function( name )
+  RekordResolve.all = function( name )
   {
-    return NeuroResolve.factory( name, function(model, defer, templateResolver)
+    return RekordResolve.factory( name, function(model, defer, templateResolver)
     {
       model.Database.ready(function()
       {
@@ -660,9 +660,9 @@
     });
   };
 
-  NeuroResolve.where = function( name, whereProperties, whereValue, whereEquals )
+  RekordResolve.where = function( name, whereProperties, whereValue, whereEquals )
   {
-    return NeuroResolve.factory( name, function(model, defer, templateResolver)
+    return RekordResolve.factory( name, function(model, defer, templateResolver)
     {
       var resolvedWhereProperties = ResolveInput( whereProperties, templateResolver );
       var resolvedWhereValue = ResolveInput( whereValue, templateResolver );
@@ -674,4 +674,4 @@
     });
   };
 
-})( angular.module('neurosync', []), this );
+})( angular.module('rekord', []), this );

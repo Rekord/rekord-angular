@@ -1,26 +1,26 @@
-module( 'NeuroBind' );
+module( 'RekordBind' );
 
-var $injector = angular.injector(['ng', 'ngMock', 'neurosync', 'neurosync-test']);
+var $injector = angular.injector(['ng', 'ngMock', 'rekord', 'rekord-test']);
 
 test( 'Database', function(assert)
 {
   var done = assert.async();
   var prefix = 'NeurBind_Database_';
 
-  var Task = Neuro({
+  var Task = Rekord({
     name: prefix + 'task',
     fields: ['name', 'done'],
     defaults: {done: false}
   });
 
-  $injector.invoke(function(NeuroBind)
+  $injector.invoke(function(RekordBind)
   {
     var $scope = new MockScope();
 
     strictEqual( $scope.listens, 0 );
     strictEqual( $scope.evals, 0 );
 
-    NeuroBind( $scope, Task );
+    RekordBind( $scope, Task );
 
     strictEqual( $scope.listens, 1 );
     strictEqual( $scope.evals, 0 );
@@ -51,13 +51,13 @@ test( 'Model', function(assert)
   var done = assert.async();
   var prefix = 'NeurBind_Model_';
 
-  var Task = Neuro({
+  var Task = Rekord({
     name: prefix + 'task',
     fields: ['name', 'done'],
     defaults: {done: false}
   });
 
-  $injector.invoke(function(NeuroBind)
+  $injector.invoke(function(RekordBind)
   {
     var $scope = new MockScope();
 
@@ -66,7 +66,7 @@ test( 'Model', function(assert)
 
     var t0 = Task.create({name: 't0'});
 
-    NeuroBind( $scope, t0 );
+    RekordBind( $scope, t0 );
 
     strictEqual( $scope.listens, 1 );
     strictEqual( $scope.evals, 0 );
@@ -97,16 +97,16 @@ test( 'Collection', function(assert)
   var done = assert.async();
   var prefix = 'NeurBind_Collection_';
 
-  $injector.invoke(function(NeuroBind)
+  $injector.invoke(function(RekordBind)
   {
     var $scope = new MockScope();
 
     strictEqual( $scope.listens, 0 );
     strictEqual( $scope.evals, 0 );
 
-    var c0 = Neuro.collect(1, 2, 3, 4);
+    var c0 = Rekord.collect(1, 2, 3, 4);
 
-    NeuroBind( $scope, c0 );
+    RekordBind( $scope, c0 );
 
     strictEqual( $scope.listens, 1 );
     strictEqual( $scope.evals, 0 );
@@ -137,17 +137,17 @@ test( 'Page', function(assert)
   var done = assert.async();
   var prefix = 'NeurBind_Page_';
 
-  $injector.invoke(function(NeuroBind)
+  $injector.invoke(function(RekordBind)
   {
     var $scope = new MockScope();
 
     strictEqual( $scope.listens, 0 );
     strictEqual( $scope.evals, 0 );
 
-    var c0 = Neuro.collect(1, 2, 3, 4);
+    var c0 = Rekord.collect(1, 2, 3, 4);
     var p0 = c0.page( 2 );
 
-    NeuroBind( $scope, p0 );
+    RekordBind( $scope, p0 );
 
     strictEqual( $scope.listens, 1 );
     strictEqual( $scope.evals, 0 );
@@ -179,14 +179,14 @@ test( 'Page', function(assert)
 
 });
 
-module( 'NeuroSelect' );
+module( 'RekordSelect' );
 
 test( 'selectable', function(assert)
 {
-  var prefix = 'NeuroSelect_selectable_';
+  var prefix = 'RekordSelect_selectable_';
 
   var TaskName = prefix + 'task';
-  var Task = Neuro({
+  var Task = Rekord({
     name: TaskName,
     fields: ['name', 'done'],
     defaults: {done: false}
@@ -213,15 +213,15 @@ test( 'selectable', function(assert)
   deepEqual( selection.$selection(), [t2] );
 });
 
-module( 'NeuroResolve' );
+module( 'RekordResolve' );
 
-test( 'NeuroResolve.model', function(assert)
+test( 'RekordResolve.model', function(assert)
 {
   var done = assert.async();
-  var prefix = 'NeuroResolve_model_';
+  var prefix = 'RekordResolve_model_';
 
   var TaskName = prefix + 'task';
-  var Task = Neuro({
+  var Task = Rekord({
     name: TaskName,
     fields: ['name', 'done'],
     defaults: {done: false}
@@ -231,9 +231,9 @@ test( 'NeuroResolve.model', function(assert)
 
   expect( 1 );
 
-  $injector.invoke(function($rootScope, NeuroResolve)
+  $injector.invoke(function($rootScope, RekordResolve)
   {
-    var resolve = NeuroResolve.model( TaskName, 23 );
+    var resolve = RekordResolve.model( TaskName, 23 );
     var promise = $injector.invoke( resolve );
 
     promise.then(function(resolved)
@@ -249,13 +249,13 @@ test( 'NeuroResolve.model', function(assert)
 
 });
 
-test( 'NeuroResolve.create save', function(assert)
+test( 'RekordResolve.create save', function(assert)
 {
   var done = assert.async();
-  var prefix = 'NeuroResolve_create_save_';
+  var prefix = 'RekordResolve_create_save_';
 
   var TaskName = prefix + 'task';
-  var Task = Neuro({
+  var Task = Rekord({
     name: TaskName,
     fields: ['name', 'done'],
     defaults: {done: false}
@@ -263,9 +263,9 @@ test( 'NeuroResolve.create save', function(assert)
 
   expect( 2 );
 
-  $injector.invoke(function($rootScope, NeuroResolve)
+  $injector.invoke(function($rootScope, RekordResolve)
   {
-    var resolve = NeuroResolve.create( TaskName, {name: 't0'} );
+    var resolve = RekordResolve.create( TaskName, {name: 't0'} );
     var promise = $injector.invoke( resolve );
 
     promise.then(function(resolved)
@@ -282,13 +282,13 @@ test( 'NeuroResolve.create save', function(assert)
 
 });
 
-test( 'NeuroResolve.create dontSave', function(assert)
+test( 'RekordResolve.create dontSave', function(assert)
 {
   var done = assert.async();
-  var prefix = 'NeuroResolve_create_dontSave_';
+  var prefix = 'RekordResolve_create_dontSave_';
 
   var TaskName = prefix + 'task';
-  var Task = Neuro({
+  var Task = Rekord({
     name: TaskName,
     fields: ['name', 'done'],
     defaults: {done: false}
@@ -296,9 +296,9 @@ test( 'NeuroResolve.create dontSave', function(assert)
 
   expect( 2 );
 
-  $injector.invoke(function($rootScope, NeuroResolve)
+  $injector.invoke(function($rootScope, RekordResolve)
   {
-    var resolve = NeuroResolve.create( TaskName, {name: 't0'}, true );
+    var resolve = RekordResolve.create( TaskName, {name: 't0'}, true );
     var promise = $injector.invoke( resolve );
 
     promise.then(function(resolved)
@@ -315,13 +315,13 @@ test( 'NeuroResolve.create dontSave', function(assert)
 
 });
 
-test( 'NeuroResolve.fetch', function(assert)
+test( 'RekordResolve.fetch', function(assert)
 {
   var done = assert.async();
-  var prefix = 'NeuroResolve_fetch_';
+  var prefix = 'RekordResolve_fetch_';
 
   var TaskName = prefix + 'task';
-  var Task = Neuro({
+  var Task = Rekord({
     name: TaskName,
     fields: ['name', 'done'],
     defaults: {done: false}
@@ -333,9 +333,9 @@ test( 'NeuroResolve.fetch', function(assert)
 
   expect( 2 );
 
-  $injector.invoke(function($rootScope, NeuroResolve)
+  $injector.invoke(function($rootScope, RekordResolve)
   {
-    var resolve = NeuroResolve.fetch( TaskName, 45 );
+    var resolve = RekordResolve.fetch( TaskName, 45 );
     var promise = $injector.invoke( resolve );
 
     promise.then(function(resolved)
@@ -352,13 +352,13 @@ test( 'NeuroResolve.fetch', function(assert)
 
 });
 
-test( 'NeuroResolve.fetch cache', function(assert)
+test( 'RekordResolve.fetch cache', function(assert)
 {
   var done = assert.async();
-  var prefix = 'NeuroResolve_fetch_cache_';
+  var prefix = 'RekordResolve_fetch_cache_';
 
   var TaskName = prefix + 'task';
-  var Task = Neuro({
+  var Task = Rekord({
     name: TaskName,
     fields: ['name', 'done'],
     defaults: {done: false}
@@ -370,9 +370,9 @@ test( 'NeuroResolve.fetch cache', function(assert)
 
   expect( 4 );
 
-  $injector.invoke(function($rootScope, NeuroResolve)
+  $injector.invoke(function($rootScope, RekordResolve)
   {
-    var resolve = NeuroResolve.fetch( TaskName, 45 ).cache();
+    var resolve = RekordResolve.fetch( TaskName, 45 ).cache();
     var promise = $injector.invoke( resolve );
 
     promise.then(function(resolved)
@@ -399,25 +399,25 @@ test( 'NeuroResolve.fetch cache', function(assert)
 
 });
 
-test( 'NeuroResolve.fetch inject', function(assert)
+test( 'RekordResolve.fetch inject', function(assert)
 {
   expect( 5 );
 
   var TestResolved = false;
 
-  angular.module('NeuroResolve.fetch.inject', [])
+  angular.module('RekordResolve.fetch.inject', [])
     .factory('Test', function() {
       return (TestResolved = true);
     })
   ;
 
-  var $injector = angular.injector(['ng', 'ngMock', 'neurosync', 'neurosync-test', 'NeuroResolve.fetch.inject']);
+  var $injector = angular.injector(['ng', 'ngMock', 'rekord', 'rekord-test', 'RekordResolve.fetch.inject']);
 
   var done = assert.async();
-  var prefix = 'NeuroResolve_fetch_inject_';
+  var prefix = 'RekordResolve_fetch_inject_';
 
   var TaskName = prefix + 'task';
-  var Task = Neuro({
+  var Task = Rekord({
     name: TaskName,
     fields: ['name', 'done'],
     defaults: {done: false}
@@ -427,11 +427,11 @@ test( 'NeuroResolve.fetch inject', function(assert)
 
   remote.map.put( 45, {id: 45, name: 't45'} );
 
-  $injector.invoke(function($rootScope, NeuroResolve)
+  $injector.invoke(function($rootScope, RekordResolve)
   {
     notOk( TestResolved, 'Test Not Yet Resolved' );
 
-    var resolve = NeuroResolve.fetch( TaskName, 45 ).inject('Test');
+    var resolve = RekordResolve.fetch( TaskName, 45 ).inject('Test');
 
     notOk( TestResolved, 'Test Still Not Resolved' );
 
@@ -452,13 +452,13 @@ test( 'NeuroResolve.fetch inject', function(assert)
 
 });
 
-test( 'NeuroResolve.fetchAll', function(assert)
+test( 'RekordResolve.fetchAll', function(assert)
 {
   var done = assert.async();
-  var prefix = 'NeuroResolve_fetchAll_';
+  var prefix = 'RekordResolve_fetchAll_';
 
   var TaskName = prefix + 'task';
-  var Task = Neuro({
+  var Task = Rekord({
     name: TaskName,
     fields: ['name', 'done'],
     defaults: {done: false}
@@ -471,9 +471,9 @@ test( 'NeuroResolve.fetchAll', function(assert)
 
   expect( 5 );
 
-  $injector.invoke(function($rootScope, NeuroResolve)
+  $injector.invoke(function($rootScope, RekordResolve)
   {
-    var resolve = NeuroResolve.fetchAll( TaskName );
+    var resolve = RekordResolve.fetchAll( TaskName );
     var promise = $injector.invoke( resolve );
 
     promise.then(function(resolved)
@@ -493,14 +493,14 @@ test( 'NeuroResolve.fetchAll', function(assert)
 
 });
 
-test( 'NeuroResolve.query', function(assert)
+test( 'RekordResolve.query', function(assert)
 {
   var done = assert.async();
-  var prefix = 'NeuroResolve_query_';
+  var prefix = 'RekordResolve_query_';
   var URL = 'http://google.com';
 
   var TaskName = prefix + 'task';
-  var Task = Neuro({
+  var Task = Rekord({
     name: TaskName,
     fields: ['name', 'done'],
     defaults: {done: false}
@@ -515,14 +515,14 @@ test( 'NeuroResolve.query', function(assert)
 
   expect( 6 );
 
-  $injector.invoke(function($rootScope, NeuroResolve)
+  $injector.invoke(function($rootScope, RekordResolve)
   {
-    var resolve = NeuroResolve.query( TaskName, URL );
+    var resolve = RekordResolve.query( TaskName, URL );
     var promise = $injector.invoke( resolve );
 
     promise.then(function(resolved)
     {
-      isInstance( resolved, Neuro.RemoteQuery );
+      isInstance( resolved, Rekord.RemoteQuery );
 
       strictEqual( resolved.length, 2 );
       strictEqual( resolved[0].id, 35 );
@@ -539,13 +539,13 @@ test( 'NeuroResolve.query', function(assert)
 
 });
 
-test( 'NeuroResolve.all', function(assert)
+test( 'RekordResolve.all', function(assert)
 {
   var done = assert.async();
-  var prefix = 'NeuroResolve_all_';
+  var prefix = 'RekordResolve_all_';
 
   var TaskName = prefix + 'task';
-  var Task = Neuro({
+  var Task = Rekord({
     name: TaskName,
     fields: ['name', 'done'],
     defaults: {done: false}
@@ -557,9 +557,9 @@ test( 'NeuroResolve.all', function(assert)
 
   expect( 4 );
 
-  $injector.invoke(function($rootScope, NeuroResolve)
+  $injector.invoke(function($rootScope, RekordResolve)
   {
-    var resolve = NeuroResolve.all( TaskName );
+    var resolve = RekordResolve.all( TaskName );
     var promise = $injector.invoke( resolve );
 
     promise.then(function(resolved)
@@ -578,13 +578,13 @@ test( 'NeuroResolve.all', function(assert)
 
 });
 
-test( 'NeuroResolve.where', function(assert)
+test( 'RekordResolve.where', function(assert)
 {
   var done = assert.async();
-  var prefix = 'NeuroResolve_where_';
+  var prefix = 'RekordResolve_where_';
 
   var TaskName = prefix + 'task';
-  var Task = Neuro({
+  var Task = Rekord({
     name: TaskName,
     fields: ['name', 'done'],
     defaults: {done: false}
@@ -596,9 +596,9 @@ test( 'NeuroResolve.where', function(assert)
 
   expect( 3 );
 
-  $injector.invoke(function($rootScope, NeuroResolve)
+  $injector.invoke(function($rootScope, RekordResolve)
   {
-    var resolve = NeuroResolve.where( TaskName, 'done', true );
+    var resolve = RekordResolve.where( TaskName, 'done', true );
     var promise = $injector.invoke( resolve );
 
     promise.then(function(resolved)
