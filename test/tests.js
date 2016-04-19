@@ -13,14 +13,14 @@ test( 'Database', function(assert)
     defaults: {done: false}
   });
 
-  $injector.invoke(function(RekordBind)
+  $injector.invoke(function()
   {
     var $scope = new MockScope();
 
     strictEqual( $scope.listens, 0 );
     strictEqual( $scope.evals, 0 );
 
-    RekordBind( $scope, Task );
+    Rekord.Bind( $scope, Task );
 
     strictEqual( $scope.listens, 1 );
     strictEqual( $scope.evals, 0 );
@@ -57,7 +57,7 @@ test( 'Model', function(assert)
     defaults: {done: false}
   });
 
-  $injector.invoke(function(RekordBind)
+  $injector.invoke(function()
   {
     var $scope = new MockScope();
 
@@ -66,7 +66,7 @@ test( 'Model', function(assert)
 
     var t0 = Task.create({name: 't0'});
 
-    RekordBind( $scope, t0 );
+    Rekord.Bind( $scope, t0 );
 
     strictEqual( $scope.listens, 1 );
     strictEqual( $scope.evals, 0 );
@@ -97,7 +97,7 @@ test( 'Collection', function(assert)
   var done = assert.async();
   var prefix = 'NeurBind_Collection_';
 
-  $injector.invoke(function(RekordBind)
+  $injector.invoke(function()
   {
     var $scope = new MockScope();
 
@@ -106,7 +106,7 @@ test( 'Collection', function(assert)
 
     var c0 = Rekord.collect(1, 2, 3, 4);
 
-    RekordBind( $scope, c0 );
+    Rekord.Bind( $scope, c0 );
 
     strictEqual( $scope.listens, 1 );
     strictEqual( $scope.evals, 0 );
@@ -137,7 +137,7 @@ test( 'Page', function(assert)
   var done = assert.async();
   var prefix = 'NeurBind_Page_';
 
-  $injector.invoke(function(RekordBind)
+  $injector.invoke(function()
   {
     var $scope = new MockScope();
 
@@ -147,7 +147,7 @@ test( 'Page', function(assert)
     var c0 = Rekord.collect(1, 2, 3, 4);
     var p0 = c0.page( 2 );
 
-    RekordBind( $scope, p0 );
+    Rekord.Bind( $scope, p0 );
 
     strictEqual( $scope.listens, 1 );
     strictEqual( $scope.evals, 0 );
@@ -231,9 +231,9 @@ test( 'RekordResolve.model', function(assert)
 
   expect( 1 );
 
-  $injector.invoke(function($rootScope, RekordResolve)
+  $injector.invoke(function($rootScope)
   {
-    var resolve = RekordResolve.model( TaskName, 23 );
+    var resolve = Rekord.Resolve.model( TaskName, 23 );
     var promise = $injector.invoke( resolve );
 
     promise.then(function(resolved)
@@ -263,9 +263,9 @@ test( 'RekordResolve.create save', function(assert)
 
   expect( 2 );
 
-  $injector.invoke(function($rootScope, RekordResolve)
+  $injector.invoke(function($rootScope)
   {
-    var resolve = RekordResolve.create( TaskName, {name: 't0'} );
+    var resolve = Rekord.Resolve.create( TaskName, {name: 't0'} );
     var promise = $injector.invoke( resolve );
 
     promise.then(function(resolved)
@@ -296,9 +296,9 @@ test( 'RekordResolve.create dontSave', function(assert)
 
   expect( 2 );
 
-  $injector.invoke(function($rootScope, RekordResolve)
+  $injector.invoke(function($rootScope)
   {
-    var resolve = RekordResolve.create( TaskName, {name: 't0'}, true );
+    var resolve = Rekord.Resolve.create( TaskName, {name: 't0'}, true );
     var promise = $injector.invoke( resolve );
 
     promise.then(function(resolved)
@@ -333,9 +333,9 @@ test( 'RekordResolve.fetch', function(assert)
 
   expect( 2 );
 
-  $injector.invoke(function($rootScope, RekordResolve)
+  $injector.invoke(function($rootScope)
   {
-    var resolve = RekordResolve.fetch( TaskName, 45 );
+    var resolve = Rekord.Resolve.fetch( TaskName, 45 );
     var promise = $injector.invoke( resolve );
 
     promise.then(function(resolved)
@@ -370,9 +370,9 @@ test( 'RekordResolve.fetch cache', function(assert)
 
   expect( 4 );
 
-  $injector.invoke(function($rootScope, RekordResolve)
+  $injector.invoke(function($rootScope)
   {
-    var resolve = RekordResolve.fetch( TaskName, 45 ).cache();
+    var resolve = Rekord.Resolve.fetch( TaskName, 45 ).cache();
     var promise = $injector.invoke( resolve );
 
     promise.then(function(resolved)
@@ -427,11 +427,11 @@ test( 'RekordResolve.fetch inject', function(assert)
 
   remote.map.put( 45, {id: 45, name: 't45'} );
 
-  $injector.invoke(function($rootScope, RekordResolve)
+  $injector.invoke(function($rootScope)
   {
     notOk( TestResolved, 'Test Not Yet Resolved' );
 
-    var resolve = RekordResolve.fetch( TaskName, 45 ).inject('Test');
+    var resolve = Rekord.Resolve.fetch( TaskName, 45 ).inject('Test');
 
     notOk( TestResolved, 'Test Still Not Resolved' );
 
@@ -471,9 +471,9 @@ test( 'RekordResolve.fetchAll', function(assert)
 
   expect( 5 );
 
-  $injector.invoke(function($rootScope, RekordResolve)
+  $injector.invoke(function($rootScope)
   {
-    var resolve = RekordResolve.fetchAll( TaskName );
+    var resolve = Rekord.Resolve.fetchAll( TaskName );
     var promise = $injector.invoke( resolve );
 
     promise.then(function(resolved)
@@ -493,10 +493,10 @@ test( 'RekordResolve.fetchAll', function(assert)
 
 });
 
-test( 'RekordResolve.query', function(assert)
+test( 'RekordResolve.search', function(assert)
 {
   var done = assert.async();
-  var prefix = 'RekordResolve_query_';
+  var prefix = 'RekordResolve_search_';
   var URL = 'http://google.com';
 
   var TaskName = prefix + 'task';
@@ -515,20 +515,22 @@ test( 'RekordResolve.query', function(assert)
 
   expect( 6 );
 
-  $injector.invoke(function($rootScope, RekordResolve)
+  $injector.invoke(function($rootScope)
   {
-    var resolve = RekordResolve.query( TaskName, URL );
+    var resolve = Rekord.Resolve.search( TaskName, URL );
     var promise = $injector.invoke( resolve );
 
     promise.then(function(resolved)
     {
-      isInstance( resolved, Rekord.RemoteQuery );
+      var results = resolved.$results;
 
-      strictEqual( resolved.length, 2 );
-      strictEqual( resolved[0].id, 35 );
-      strictEqual( resolved[0].name, 't35' );
-      strictEqual( resolved[1].id, 36 );
-      strictEqual( resolved[1].name, 't36' );
+      isInstance( resolved, Rekord.Search );
+
+      strictEqual( results.length, 2 );
+      strictEqual( results[0].id, 35 );
+      strictEqual( results[0].name, 't35' );
+      strictEqual( results[1].id, 36 );
+      strictEqual( results[1].name, 't36' );
 
       done();
     });
@@ -557,9 +559,9 @@ test( 'RekordResolve.all', function(assert)
 
   expect( 4 );
 
-  $injector.invoke(function($rootScope, RekordResolve)
+  $injector.invoke(function($rootScope)
   {
-    var resolve = RekordResolve.all( TaskName );
+    var resolve = Rekord.Resolve.all( TaskName );
     var promise = $injector.invoke( resolve );
 
     promise.then(function(resolved)
@@ -596,9 +598,9 @@ test( 'RekordResolve.where', function(assert)
 
   expect( 3 );
 
-  $injector.invoke(function($rootScope, RekordResolve)
+  $injector.invoke(function($rootScope)
   {
-    var resolve = RekordResolve.where( TaskName, 'done', true );
+    var resolve = Rekord.Resolve.where( TaskName, 'done', true );
     var promise = $injector.invoke( resolve );
 
     promise.then(function(resolved)
@@ -614,4 +616,240 @@ test( 'RekordResolve.where', function(assert)
 
   });
 
+});
+
+module( 'RekordFactory' );
+
+test( 'search', function(assert)
+{
+  var done = assert.async();
+  var prefix = 'RekordFactory_search_';
+  var URL = 'http://google.com';
+
+  var TaskName = prefix + 'task';
+  var Task = Rekord({
+    name: TaskName,
+    fields: ['name', 'done'],
+    defaults: {done: false}
+  });
+
+  var remote = Task.Database.rest;
+
+  remote.queries.put( URL, [
+    {id: 35, name: 't35'},
+    {id: 36, name: 't36'}
+  ]);
+
+  expect( 1 );
+
+  angular.module( 'rekord-test' )
+    .factory( 'SearchedTasks', Rekord.Factory.search( TaskName, URL, {}, true ) )
+  ;
+
+  var $injector = angular.injector(['ng', 'ngMock', 'rekord', 'rekord-test']);
+
+  $injector.invoke(function(SearchedTasks)
+  {
+    strictEqual( SearchedTasks.$results.length, 2 );
+
+    done();
+  });
+});
+
+test( 'lazyLoad', function(assert)
+{
+  var done = assert.async();
+  var prefix = 'RekorkFactory_lazyLoad_';
+
+  var TaskName = prefix + 'task';
+  var Task = Rekord({
+    name: TaskName,
+    fields: ['name', 'done'],
+    defaults: {done: false},
+    loadRemote: false
+  });
+
+  var remote = Task.Database.rest;
+
+  remote.map.put( 35, {id: 35, name: 't35'} );
+  remote.map.put( 36, {id: 36, name: 't36'} );
+
+  expect( 1 );
+
+  angular.module( 'rekord-test' )
+    .factory( 'Tasks', Rekord.Factory.lazyLoad( TaskName ) )
+  ;
+
+  var $injector = angular.injector(['ng', 'ngMock', 'rekord', 'rekord-test']);
+
+  $injector.invoke(function(Tasks)
+  {
+    strictEqual( Tasks.length, 2 );
+
+    done();
+  });
+});
+
+test( 'filtered', function(assert)
+{
+  var done = assert.async();
+  var prefix = 'RekorkFactory_filtered_';
+
+  var TaskName = prefix + 'task';
+  var Task = Rekord({
+    name: TaskName,
+    fields: ['name', 'done'],
+    defaults: {done: false},
+    loadRemote: false
+  });
+
+  Task.create({name: 't0', done: true});
+  Task.create({name: 't1', done: true});
+  Task.create({name: 't2', done: false});
+
+  expect( 2 );
+
+  angular.module( 'rekord-test' )
+    .factory( 'TasksDone', Rekord.Factory.filtered( TaskName, 'done', true ) )
+  ;
+
+  var $injector = angular.injector(['ng', 'ngMock', 'rekord', 'rekord-test']);
+
+  $injector.invoke(function(TasksDone)
+  {
+    strictEqual( TasksDone.length, 2 );
+    strictEqual( Task.all().length, 3 );
+
+    done();
+  });
+});
+
+test( 'all', function(assert)
+{
+  var done = assert.async();
+  var prefix = 'RekorkFactory_all_';
+
+  var TaskName = prefix + 'task';
+  var Task = Rekord({
+    name: TaskName,
+    fields: ['name', 'done'],
+    defaults: {done: false},
+    loadRemote: false
+  });
+
+  Task.create({name: 't0', done: true});
+  Task.create({name: 't1', done: true});
+  Task.create({name: 't2', done: false});
+
+  expect( 1 );
+
+  angular.module( 'rekord-test' )
+    .factory( 'TasksAll', Rekord.Factory.all( TaskName ) )
+  ;
+
+  var $injector = angular.injector(['ng', 'ngMock', 'rekord', 'rekord-test']);
+
+  $injector.invoke(function(TasksAll)
+  {
+    strictEqual( TasksAll.length, 3 );
+
+    done();
+  });
+});
+
+test( 'create', function(assert)
+{
+  var done = assert.async();
+  var prefix = 'RekorkFactory_create_';
+
+  var TaskName = prefix + 'task';
+  var Task = Rekord({
+    name: TaskName,
+    fields: ['name', 'done'],
+    defaults: {done: false},
+    loadRemote: false
+  });
+
+  expect( 1 );
+
+  angular.module( 'rekord-test' )
+    .factory( 'NewTask', Rekord.Factory.create( TaskName, {name: 'New Task'} ) )
+  ;
+
+  var $injector = angular.injector(['ng', 'ngMock', 'rekord', 'rekord-test']);
+
+  $injector.invoke(['NewTask', function(newTask)
+  {
+    strictEqual( newTask.name, 'New Task' );
+
+    done();
+  }]);
+});
+
+test( 'fetchAll', function(assert)
+{
+  var done = assert.async();
+  var prefix = 'RekorkFactory_fetchAll_';
+
+  var TaskName = prefix + 'task';
+  var Task = Rekord({
+    name: TaskName,
+    fields: ['name', 'done'],
+    defaults: {done: false}
+  });
+
+  var remote = Task.Database.rest;
+
+  remote.map.put( 35, {id: 35, name: 't35'} );
+  remote.map.put( 36, {id: 36, name: 't36'} );
+
+  expect( 1 );
+
+  angular.module( 'rekord-test' )
+    .factory( 'TasksFetched', Rekord.Factory.fetchAll( TaskName ) )
+  ;
+
+  var $injector = angular.injector(['ng', 'ngMock', 'rekord', 'rekord-test']);
+
+  $injector.invoke(function(TasksFetched)
+  {
+    strictEqual( TasksFetched.length, 2 );
+
+    done();
+  });
+});
+
+test( 'grabAll', function(assert)
+{
+  var done = assert.async();
+  var prefix = 'RekorkFactory_grabAll_';
+
+  var TaskName = prefix + 'task';
+  var Task = Rekord({
+    name: TaskName,
+    fields: ['name', 'done'],
+    defaults: {done: false}
+  });
+
+  Task.create( {id: 34, name: 't34'} );
+
+  var remote = Task.Database.rest;
+
+  remote.map.put( 35, {id: 35, name: 't35'} );
+  remote.map.put( 36, {id: 36, name: 't36'} );
+
+  expect( 1 );
+
+  angular.module( 'rekord-test' )
+    .factory( 'TasksGrabbed', Rekord.Factory.grabAll( TaskName, Rekord.noop ) )
+  ;
+
+  var $injector = angular.injector(['ng', 'ngMock', 'rekord', 'rekord-test']);
+
+  $injector.invoke(function(TasksGrabbed)
+  {
+    strictEqual( TasksGrabbed.length, 1 );
+
+    done();
+  });
 });

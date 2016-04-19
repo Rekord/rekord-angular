@@ -12,13 +12,20 @@ var build = {
   minified: 'rekord-angular.min.js',
   output: './build/',
   include: [
-    './src/rekord-angular.js'
+    './src/header.js',
+    './src/InitializeRekord.js',
+    './src/Bind.js',
+    './src/Select.js',
+    './src/Resolve.js',
+    './src/Factory.js',
+    './src/ModelFilter.js',
+    './src/footer.js'
   ]
 };
 
 var tests = [
-  './test/index.html', 
-  './test/index-ngRoute.html', 
+  './test/index.html',
+  './test/index-ngRoute.html',
   './test/index-ui.router.html'
 ];
 

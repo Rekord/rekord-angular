@@ -80,7 +80,7 @@ function ngRouteInjector()
 function uiRouterInjector()
 {
   $stateParams = {};
-  
+
   angular.module('ui.router', []).constant('$stateParams', $stateParams);
 
   return angular.injector(['ng', 'ngMock', 'rekord', 'ui.router', 'rekord-test']);
@@ -99,7 +99,7 @@ function TestTimer()
   this.time = 0;
 }
 
-TestTimer.prototype = 
+TestTimer.prototype =
 {
   wait: function(millis, func)
   {
@@ -164,6 +164,11 @@ MockScope.prototype =
     callback();
   },
 
+  $digest: function()
+  {
+    this.evals++;
+  },
+
   $destroy: function()
   {
     if ( this.callback )
@@ -186,7 +191,7 @@ function TestStore()
   this.lastKey = this.lastRecord = null;
 }
 
-TestStore.prototype = 
+TestStore.prototype =
 {
   finishDelayed: function(success, failure, arg0, arg1)
   {
@@ -281,7 +286,7 @@ function TestLive(database)
   this.lastMessage = null;
 }
 
-TestLive.prototype = 
+TestLive.prototype =
 {
   save: function(model, data)
   {
@@ -362,7 +367,7 @@ TestRest.prototype =
 
     if ( successful )
     {
-      if ( success ) success( returnedValue, status );        
+      if ( success ) success( returnedValue, status );
     }
     else
     {
@@ -392,7 +397,7 @@ TestRest.prototype =
     this.lastRecord = encoded;
 
     var map = this.map;
-    function onCreate() 
+    function onCreate()
     {
       map.put( model.$key(), encoded );
       success.apply( this, arguments );
@@ -432,8 +437,8 @@ TestRest.prototype =
   {
     this.finishDelayed( success, failure, this.map.values );
   },
-  query: function(query, success, failure)
+  query: function(url, query, success, failure)
   {
-    this.finishDelayed( success, failure, this.queries.get( query ) );
+    this.finishDelayed( success, failure, this.queries.get( url ) );
   }
 };
