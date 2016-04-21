@@ -1,4 +1,4 @@
-# ![Logo](https://avatars2.githubusercontent.com/u/18293077?v=3&s=100) rekord-angular
+# <img src="https://raw.githubusercontent.com/Rekord/rekord/master/images/rekord-color.png" width="60"> rekord-angular
 
 [![Build Status](https://travis-ci.org/Rekord/rekord-angular.svg)](https://travis-ci.org/Rekord/rekord-angular)
 [![Dependency Status](https://david-dm.org/Rekord/rekord-angular.svg)](https://david-dm.org/Rekord/rekord-angular)
