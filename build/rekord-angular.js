@@ -667,14 +667,6 @@ Factory.all = function(name)
   });
 };
 
-Factory.create = function(name, props)
-{
-  return Factory.helper( name, function(model)
-  {
-    return model.create( props );
-  });
-};
-
 Factory.fetchAll = function(name, callback, context)
 {
   return Factory.helper( name, function(model)

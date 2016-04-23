@@ -12,9 +12,9 @@ The easiest way to install is by using bower via `bower install rekord-angular`.
 
 There are two services which assist in making angular and rekord work flawlessly together:
 
-### RekordBind
+### Rekord.Bind
 
-RekordBind will bind modifications made outside of angular to an angular scope.
+Rekord.Bind will bind modifications made outside of angular to an angular scope.
 Modifications outside of angular includes but is not limited to:
 
 - Data being loaded from local storage
@@ -32,24 +32,24 @@ var Task = Rekord({
   defaults: {done: false}
 });
 
-RekordBind( $scope, Task ); // Listens to all tasks
+Rekord.Bind( $scope, Task ); // Listens to all tasks
 
 var task = Task.create({name: 'Task #1'});
 
-RekordBind( $scope, task ); // Listens to a single task
+Rekord.Bind( $scope, task ); // Listens to a single task
 
 var done = Task.all().where('done', true);
 
-RekordBind( $scope, done ); // Listens to collection of all done tasks
+Rekord.Bind( $scope, done ); // Listens to collection of all done tasks
 
 var page = done.page( 10 );
 
-RekordBind( $scope, page ); // Listens to a page from a collection
+Rekord.Bind( $scope, page ); // Listens to a page from a collection
 ```
 
-### RekordResolve
+### Rekord.Resolve
 
-RekordResolve generates functions for routing libraries to return an object
+Rekord.Resolve generates functions for routing libraries to return an object
 once it's completely loaded. This is used in routing libraries to avoid displaying the
 UI before data is completely loaded. Route parameters can also be used by specifying a string containing text in the format `{paramName}`.
 
@@ -60,41 +60,41 @@ UI before data is completely loaded. Route parameters can also be used by specif
   resolves: {
 
     // Resolve task with ID 34 (assumes the task will be loaded remotely already)
-    task: RekordResolve.model( 'task', 34 ),
+    task: Rekord.Resolve.model( 'task', 34 ),
 
     // Resolve task specified in URL (same assumption as above)
-    task: RekordResolve.model( 'task', '{taskId}' ),
+    task: Rekord.Resolve.model( 'task', '{taskId}' ),
 
     // Call GET to REST API to return the task with ID 34
-    task: RekordResolve.fetch( 'task', 45 ),
+    task: Rekord.Resolve.fetch( 'task', 45 ),
 
     // Call GET to REST API to return the task specified in URL
-    task: RekordResolve.fetch( 'task', '{taskId}' ),
+    task: Rekord.Resolve.fetch( 'task', '{taskId}' ),
 
     // Create new task & save it
-    task: RekordResolve.create( 'task', {name: 'New Task'} ),
+    task: Rekord.Resolve.create( 'task', {name: 'New Task'} ),
 
     // Create new unsaved task (equivalent of calling new Task)
-    task: RekordResolve.create( 'task', {name: 'New Task'}, true ),
+    task: Rekord.Resolve.create( 'task', {name: 'New Task'}, true ),
 
     // Make an AJAX call to the given URL and return all results
-    tasks: RekordResolve.query( 'task', '/api/task/retired' ),
+    tasks: Rekord.Resolve.query( 'task', '/api/task/retired' ),
 
     // Make an AJAX call to the given URL using task specified in URL
-    tasks: RekordResolve.query( 'task', '/api/task/parent_task/{taskId}' ),
+    tasks: Rekord.Resolve.query( 'task', '/api/task/parent_task/{taskId}' ),
 
     // Return all existing tasks loaded in the system
-    tasks: RekordResolve.all( 'task' ),
+    tasks: Rekord.Resolve.all( 'task' ),
 
     // Return existing tasks that meet some where condition
-    tasks: RekordResolve.where( 'task', 'done', false ),
-    tasks: RekordResolve.where( 'task', {parent_task: '{taskId}', done: true} ),
+    tasks: Rekord.Resolve.where( 'task', 'done', false ),
+    tasks: Rekord.Resolve.where( 'task', {parent_task: '{taskId}', done: true} ),
 
     // Grabs the model with ID 34 - if it doesn't exist locally it is fetched.
-    task: RekordResolve.grab( 'task', 34 ),
+    task: Rekord.Resolve.grab( 'task', 34 ),
 
     // Grabs all existing tasks - if non exist locally it is all fetched.
-    tasks: RekordResolve.grabAll( 'task' )
+    tasks: Rekord.Resolve.grabAll( 'task' )
 
   }
   ...
@@ -102,9 +102,9 @@ UI before data is completely loaded. Route parameters can also be used by specif
 
 ```
 
-### RekordSelect
+### Rekord.Select
 
-RekordSelect allows a user to make models in a collection selectable - once the
+Rekord.Select allows a user to make models in a collection selectable - once the
 user is done selecting models they can be retrieved with `$selection()`. This
 pairs perfectly with ngModel & checkboxes.
 
@@ -125,4 +125,35 @@ var options = Task.all().selectable( currentUser.tasks );
 // Set what's currently selected
 options.$select( currentUers.tasks );
 
+```
+
+### Rekord.Factory
+
+Rekord.Factory generates a factory function for angular to return a Rekord class.
+
+```javascript
+angular.module('my-module')
+
+  // Creates a search and executes it (if run is true) the first time this dependency is injected.
+  .factory( 'MySearch', Rekord.Factory.search( 'Task', '/tasks/search', {done: true}, true ) )
+
+  // If the model has loadRemote:false but you still want them to be loaded - this will load
+  // the models the first time this dependency is injected
+  .factory( 'Tasks', Rekord.Factory.lazyLoad( 'Task' ) )
+
+  // Returns a live collection of models which pass the where expression.
+  .factory( 'TasksDone', Rekord.Factory.filtered( 'Task', 'done', true ) )
+
+  // Returns the collection of models that are currently loaded.
+  .factory( 'TasksCached', Rekord.Factory.all( 'Task' ) )
+
+  // Returns the collection of models that are current loaded and calls
+  // on the database to be refreshed from the remote source.
+  .factory( 'TasksFetched', Rekord.Factory.fetchAll( 'Task' ) )
+
+  // Returns the collection of models that are currently loaded. If the local
+  // source has been loaded an no model instances exist - the models are loaded
+  // from the remote source.
+  .factory( 'TasksGrabbed', Rekord.Factory.grabAll( 'Task' ) )
+;
 ```

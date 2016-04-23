@@ -757,35 +757,6 @@ test( 'all', function(assert)
   });
 });
 
-test( 'create', function(assert)
-{
-  var done = assert.async();
-  var prefix = 'RekorkFactory_create_';
-
-  var TaskName = prefix + 'task';
-  var Task = Rekord({
-    name: TaskName,
-    fields: ['name', 'done'],
-    defaults: {done: false},
-    loadRemote: false
-  });
-
-  expect( 1 );
-
-  angular.module( 'rekord-test' )
-    .factory( 'NewTask', Rekord.Factory.create( TaskName, {name: 'New Task'} ) )
-  ;
-
-  var $injector = angular.injector(['ng', 'ngMock', 'rekord', 'rekord-test']);
-
-  $injector.invoke(['NewTask', function(newTask)
-  {
-    strictEqual( newTask.name, 'New Task' );
-
-    done();
-  }]);
-});
-
 test( 'fetchAll', function(assert)
 {
   var done = assert.async();
