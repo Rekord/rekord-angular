@@ -2,7 +2,7 @@ Factory.helper = function(name, impl)
 {
   var ref = null;
 
-  Rekord.get( name, function(rekord)
+  Rekord.get( name ).success(function(rekord)
   {
     ref = rekord;
   });
@@ -18,23 +18,13 @@ Factory.helper = function(name, impl)
   };
 };
 
-Factory.search = function(name, url, props, run, paged)
+Factory.search = function(name, url, options, props, run, paged)
 {
   return Factory.helper( name, function(model)
   {
-    var search = paged ? model.searchPaged( url ) : model.search( url );
-
-    if ( Rekord.isObject( props ) )
-    {
-      Rekord.transfer( props, search );
-    }
-
-    if ( run )
-    {
-      search.$run();
-    }
-
-    return search;
+    return paged ?
+      model.searchPaged( url, options, props, run ) :
+      model.search( url, options, props, run );
   });
 };
 

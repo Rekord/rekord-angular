@@ -384,7 +384,7 @@ Resolve.factory = function( name, callback )
         });
       }
 
-      Rekord.get( name, function(model)
+      Rekord.get( name ).success(function(model)
       {
         callback( model, defer, templateResolver );
       });
@@ -543,26 +543,19 @@ Resolve.create = function( name, properties, dontSave )
   });
 };
 
-Resolve.search = function( name, query, props )
+Resolve.search = function( name, url, options, props )
 {
   return Resolve.factory( name, function(model, defer, templateResolver)
   {
-    var resolvedQuery = ResolveInput( query, templateResolver );
-    var remoteQuery = model.search( resolvedQuery );
+    var resolvedQuery = ResolveInput( url, templateResolver );
+    var remoteQuery = model.search( resolvedQuery, options, props, true );
 
-    if ( Rekord.isObject( props ) )
-    {
-      Rekord.transfer( props, remoteQuery );
-    }
-
-    remoteQuery.$run();
-
-    remoteQuery.$success(function()
+    remoteQuery.$promise.success(function()
     {
       defer.resolve( remoteQuery );
     });
 
-    remoteQuery.$failure(function()
+    remoteQuery.$promise.failure(function()
     {
       defer.reject();
     });
@@ -598,7 +591,7 @@ Factory.helper = function(name, impl)
 {
   var ref = null;
 
-  Rekord.get( name, function(rekord)
+  Rekord.get( name ).success(function(rekord)
   {
     ref = rekord;
   });
@@ -614,23 +607,13 @@ Factory.helper = function(name, impl)
   };
 };
 
-Factory.search = function(name, url, props, run, paged)
+Factory.search = function(name, url, options, props, run, paged)
 {
   return Factory.helper( name, function(model)
   {
-    var search = paged ? model.searchPaged( url ) : model.search( url );
-
-    if ( Rekord.isObject( props ) )
-    {
-      Rekord.transfer( props, search );
-    }
-
-    if ( run )
-    {
-      search.$run();
-    }
-
-    return search;
+    return paged ?
+      model.searchPaged( url, options, props, run ) :
+      model.search( url, options, props, run );
   });
 };
 

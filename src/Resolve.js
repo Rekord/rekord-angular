@@ -93,7 +93,7 @@ Resolve.factory = function( name, callback )
         });
       }
 
-      Rekord.get( name, function(model)
+      Rekord.get( name ).success(function(model)
       {
         callback( model, defer, templateResolver );
       });
@@ -252,26 +252,19 @@ Resolve.create = function( name, properties, dontSave )
   });
 };
 
-Resolve.search = function( name, query, props )
+Resolve.search = function( name, url, options, props )
 {
   return Resolve.factory( name, function(model, defer, templateResolver)
   {
-    var resolvedQuery = ResolveInput( query, templateResolver );
-    var remoteQuery = model.search( resolvedQuery );
+    var resolvedQuery = ResolveInput( url, templateResolver );
+    var remoteQuery = model.search( resolvedQuery, options, props, true );
 
-    if ( Rekord.isObject( props ) )
-    {
-      Rekord.transfer( props, remoteQuery );
-    }
-
-    remoteQuery.$run();
-
-    remoteQuery.$success(function()
+    remoteQuery.$promise.success(function()
     {
       defer.resolve( remoteQuery );
     });
 
-    remoteQuery.$failure(function()
+    remoteQuery.$promise.failure(function()
     {
       defer.reject();
     });

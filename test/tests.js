@@ -643,7 +643,7 @@ test( 'search', function(assert)
   expect( 1 );
 
   angular.module( 'rekord-test' )
-    .factory( 'SearchedTasks', Rekord.Factory.search( TaskName, URL, {}, true ) )
+    .factory( 'SearchedTasks', Rekord.Factory.search( TaskName, URL, {}, {}, true ) )
   ;
 
   var $injector = angular.injector(['ng', 'ngMock', 'rekord', 'rekord-test']);
