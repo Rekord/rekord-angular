@@ -1,6 +1,9 @@
 function Bind( scope, target, callback )
 {
-  if ( !(this instanceof Bind) ) return new Bind( scope, target, callback );
+  if ( !(this instanceof Bind) )
+  {
+    return new Bind( scope, target, callback );
+  }
 
   this.scope = scope;
   this.target = target;

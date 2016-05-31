@@ -6,6 +6,8 @@ var plugins = require('gulp-load-plugins')();
 var gutil = require('gulp-util');
 var qunit = require('gulp-qunit');
 var shell = require('gulp-shell');
+var size = require('gulp-check-filesize');
+var jshint = require('gulp-jshint');
 
 var build = {
   filename: 'rekord-angular.js',
@@ -38,6 +40,7 @@ var executeMinifiedBuild = function(props)
         .pipe( plugins.concat( props.minified ) )
         .pipe( plugins.uglify().on('error', gutil.log) )
       .pipe( sourcemaps.write('.') )
+      .pipe( size({enableGzip: true}) )
       .pipe( gulp.dest( props.output ) )
     ;
   };
@@ -49,7 +52,11 @@ var executeBuild = function(props)
     return gulp
       .src( props.include )
       .pipe( plugins.concat( props.filename ) )
+      .pipe( size({enableGzip: true}) )
       .pipe( gulp.dest( props.output ) )
+      .pipe(jshint())
+      .pipe(jshint.reporter('default'))
+      .pipe(jshint.reporter('fail'))
     ;
   };
 };
@@ -60,6 +67,15 @@ var executeTest = function(file)
     return gulp.src( file ).pipe( qunit() );
   };
 };
+
+gulp.task('lint', function() {
+  return gulp
+    .src(build.output + build.filename)
+    .pipe(jshint())
+    .pipe(jshint.reporter('default'))
+    .pipe(jshint.reporter('fail'))
+  ;
+});
 
 gulp.task( 'test', executeTest( tests ) );
 

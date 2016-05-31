@@ -1,44 +1,44 @@
 
+function removeTrailingSlash(x)
+{
+  return x.charAt(x.length - 1) === '/' ? x.substring(0, x.length - 1) : x;
+}
+
 function InitializeRekord($http)
 {
-  Rekord.setRest(function(database)
+  function execute( method, data, url, success, failure, offlineValue )
   {
-    function removeTrailingSlash(x)
+    Rekord.debug( Rekord.Debugs.REST, this, method, url, data );
+
+    if ( Rekord.forceOffline )
     {
-      return x.charAt(x.length - 1) === '/' ? x.substring(0, x.length - 1) : x;
+      failure( offlineValue, 0 );
     }
-
-    function execute( method, data, url, success, failure, offlineValue )
+    else
     {
-      Rekord.debug( Rekord.Debugs.REST, this, method, url, data );
-
-      if ( Rekord.forceOffline )
+      var onRestSuccess = function(response)
       {
-        failure( offlineValue, 0 );
-      }
-      else
+        success( response.data );
+      };
+
+      var onRestError = function(response)
       {
-        function onRestSuccess(response)
-        {
-          success( response.data );
-        }
+        failure( response.data, response.status );
+      };
 
-        function onRestError(response)
-        {
-          failure( response.data, response.status );
-        }
+      var options =
+      {
+        method: method,
+        data: data,
+        url: url
+      };
 
-        var options =
-        {
-          method: method,
-          data: data,
-          url: url
-        };
-
-        $http( options ).then( onRestSuccess, onRestError );
-      }
+      $http( options ).then( onRestSuccess, onRestError );
     }
+  }
 
+  function RestFactory(database)
+  {
     return {
       all: function( success, failure )
       {
@@ -67,7 +67,8 @@ function InitializeRekord($http)
         execute( method, query, url, success, failure );
       }
     };
-  });
+  }
 
+  Rekord.setRest( RestFactory );
   Rekord.listenToNetworkStatus();
 }

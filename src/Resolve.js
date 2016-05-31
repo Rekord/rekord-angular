@@ -8,14 +8,16 @@ function hasModule(moduleName)
 
   try
   {
-    angular.module( moduleName );
+    ng.module( moduleName );
 
-    return hasModule.tested[ moduleName ] = true;
+    hasModule.tested[ moduleName ] = true;
   }
   catch (e)
   {
-    return hasModule.tested[ moduleName ] = false;
+    hasModule.tested[ moduleName ] = false;
   }
+
+  return hasModule.tested[ moduleName ];
 }
 
 hasModule.tested = {};

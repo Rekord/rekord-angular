@@ -1,4 +1,4 @@
-(function (app, global, ng, Rekord, undefined)
+(function (global, Rekord, ng, app, undefined)
 {
 
   var Resolve = {};

@@ -10,4 +10,4 @@
   Rekord.Factory = Factory;
   Rekord.Debugs.ScopeDigest = 100000;
 
-})( angular.module('rekord', []), this, angular, Rekord );
+})( this, this.Rekord, this.angular, this.angular.module('rekord', []) );

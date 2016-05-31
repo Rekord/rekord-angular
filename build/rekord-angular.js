@@ -1,4 +1,4 @@
-(function (app, global, ng, Rekord, undefined)
+(function (global, Rekord, ng, app, undefined)
 {
 
   var Resolve = {};
@@ -10,46 +10,46 @@
   };
 
 
+function removeTrailingSlash(x)
+{
+  return x.charAt(x.length - 1) === '/' ? x.substring(0, x.length - 1) : x;
+}
+
 function InitializeRekord($http)
 {
-  Rekord.setRest(function(database)
+  function execute( method, data, url, success, failure, offlineValue )
   {
-    function removeTrailingSlash(x)
+    Rekord.debug( Rekord.Debugs.REST, this, method, url, data );
+
+    if ( Rekord.forceOffline )
     {
-      return x.charAt(x.length - 1) === '/' ? x.substring(0, x.length - 1) : x;
+      failure( offlineValue, 0 );
     }
-
-    function execute( method, data, url, success, failure, offlineValue )
+    else
     {
-      Rekord.debug( Rekord.Debugs.REST, this, method, url, data );
-
-      if ( Rekord.forceOffline )
+      var onRestSuccess = function(response)
       {
-        failure( offlineValue, 0 );
-      }
-      else
+        success( response.data );
+      };
+
+      var onRestError = function(response)
       {
-        function onRestSuccess(response)
-        {
-          success( response.data );
-        }
+        failure( response.data, response.status );
+      };
 
-        function onRestError(response)
-        {
-          failure( response.data, response.status );
-        }
+      var options =
+      {
+        method: method,
+        data: data,
+        url: url
+      };
 
-        var options =
-        {
-          method: method,
-          data: data,
-          url: url
-        };
-
-        $http( options ).then( onRestSuccess, onRestError );
-      }
+      $http( options ).then( onRestSuccess, onRestError );
     }
+  }
 
+  function RestFactory(database)
+  {
     return {
       all: function( success, failure )
       {
@@ -78,14 +78,18 @@ function InitializeRekord($http)
         execute( method, query, url, success, failure );
       }
     };
-  });
+  }
 
+  Rekord.setRest( RestFactory );
   Rekord.listenToNetworkStatus();
 }
 
 function Bind( scope, target, callback )
 {
-  if ( !(this instanceof Bind) ) return new Bind( scope, target, callback );
+  if ( !(this instanceof Bind) )
+  {
+    return new Bind( scope, target, callback );
+  }
 
   this.scope = scope;
   this.target = target;
@@ -299,14 +303,16 @@ function hasModule(moduleName)
 
   try
   {
-    angular.module( moduleName );
+    ng.module( moduleName );
 
-    return hasModule.tested[ moduleName ] = true;
+    hasModule.tested[ moduleName ] = true;
   }
   catch (e)
   {
-    return hasModule.tested[ moduleName ] = false;
+    hasModule.tested[ moduleName ] = false;
   }
+
+  return hasModule.tested[ moduleName ];
 }
 
 hasModule.tested = {};
@@ -709,4 +715,4 @@ function ModelFilter()
   Rekord.Factory = Factory;
   Rekord.Debugs.ScopeDigest = 100000;
 
-})( angular.module('rekord', []), this, angular, Rekord );
+})( this, this.Rekord, this.angular, this.angular.module('rekord', []) );
