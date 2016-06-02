@@ -56,9 +56,9 @@ function buildTemplateResolver(routeParams)
 {
   return function(text)
   {
-    if ( Rekord.isString( text ) && routeParams )
+    if ( isString( text ) && routeParams )
     {
-      return Rekord.format( text, routeParams );
+      return format( text, routeParams );
     }
 
     return text;
@@ -124,7 +124,7 @@ Resolve.factory = function( name, callback )
     {
       var arg = arguments[ i ];
 
-      if ( Rekord.isArray( arg ) )
+      if ( isArray( arg ) )
       {
         factory.$inject.push.apply( factory.$inject, arg );
       }
@@ -142,7 +142,7 @@ Resolve.factory = function( name, callback )
 
 function ResolveInput(obj, resolver)
 {
-  if ( Rekord.isObject( obj ) )
+  if ( isObject( obj ) )
   {
     var resolved = {};
 

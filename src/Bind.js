@@ -29,8 +29,16 @@ Bind.prototype =
   },
   notify: function()
   {
-    var scope = this.scope;
+    this.scope.$evalAsync();
 
+    if ( isFunction( this.callback ) )
+    {
+      this.callback.apply( this.target );
+    }
+
+    Rekord.debug( Rekord.Debugs.ScopeDigest, this, this.scope );
+
+    /* IDEALLY we would call digest for best performance... no good way to do that yet
     if( !scope.$$phase )
     {
       scope.$digest();
@@ -42,5 +50,6 @@ Bind.prototype =
 
       Rekord.debug( Rekord.Debugs.ScopeDigest, this, scope );
     }
+    */
   }
 };

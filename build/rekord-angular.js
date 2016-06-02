@@ -1,6 +1,15 @@
 (function (global, Rekord, ng, app, undefined)
 {
 
+  var isFunction = Rekord.isFunction;
+  var isString = Rekord.isString;
+  var isArray = Rekord.isArray;
+  var isObject = Rekord.isObject;
+  var isBoolean = Rekord.isBoolean;
+
+  var format = Rekord.format;
+  var bind = Rekord.bind;
+
   var Resolve = {};
   var Factory = {};
 
@@ -115,8 +124,16 @@ Bind.prototype =
   },
   notify: function()
   {
-    var scope = this.scope;
+    this.scope.$evalAsync();
 
+    if ( isFunction( this.callback ) )
+    {
+      this.callback.apply( this.target );
+    }
+
+    Rekord.debug( Rekord.Debugs.ScopeDigest, this, this.scope );
+
+    /* IDEALLY we would call digest for best performance... no good way to do that yet
     if( !scope.$$phase )
     {
       scope.$digest();
@@ -128,16 +145,17 @@ Bind.prototype =
 
       Rekord.debug( Rekord.Debugs.ScopeDigest, this, scope );
     }
+    */
   }
 };
 
 
 function Select(source, select, fill)
 {
-  this.$onRemove  = Rekord.bind( this, this.$handleRemove );
-  this.$onRemoves = Rekord.bind( this, this.$handleRemoves );
-  this.$onCleared = Rekord.bind( this, this.$handleCleared );
-  this.$onReset   = Rekord.bind( this, this.$handleReset );
+  this.$onRemove  = bind( this, this.$handleRemove );
+  this.$onRemoves = bind( this, this.$handleRemoves );
+  this.$onCleared = bind( this, this.$handleCleared );
+  this.$onReset   = bind( this, this.$handleReset );
 
   this.$reset( source );
   this.$select( select, fill );
@@ -178,14 +196,14 @@ Select.prototype =
 
   $select: function(select, fill)
   {
-    if ( Rekord.isArray( select ) )
+    if ( isArray( select ) )
     {
       var db = this.$source.database;
       var remove = {};
 
       for (var key in this)
       {
-        if ( Rekord.isBoolean( this[ key ] ) )
+        if ( isBoolean( this[ key ] ) )
         {
           remove[ key ] = this[ key ];
         }
@@ -264,7 +282,7 @@ Select.prototype =
   {
     for (var key in this)
     {
-      if ( Rekord.isBoolean( this[ key ] ) )
+      if ( isBoolean( this[ key ] ) )
       {
         delete this[ key ];
       }
@@ -277,7 +295,7 @@ Select.prototype =
 
     for (var key in this)
     {
-      if ( Rekord.isBoolean( this[ key ] ) )
+      if ( isBoolean( this[ key ] ) )
       {
         if ( !source.has( key ) )
         {
@@ -351,9 +369,9 @@ function buildTemplateResolver(routeParams)
 {
   return function(text)
   {
-    if ( Rekord.isString( text ) && routeParams )
+    if ( isString( text ) && routeParams )
     {
-      return Rekord.format( text, routeParams );
+      return format( text, routeParams );
     }
 
     return text;
@@ -419,7 +437,7 @@ Resolve.factory = function( name, callback )
     {
       var arg = arguments[ i ];
 
-      if ( Rekord.isArray( arg ) )
+      if ( isArray( arg ) )
       {
         factory.$inject.push.apply( factory.$inject, arg );
       }
@@ -437,7 +455,7 @@ Resolve.factory = function( name, callback )
 
 function ResolveInput(obj, resolver)
 {
-  if ( Rekord.isObject( obj ) )
+  if ( isObject( obj ) )
   {
     var resolved = {};
 

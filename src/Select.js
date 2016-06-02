@@ -1,10 +1,10 @@
 
 function Select(source, select, fill)
 {
-  this.$onRemove  = Rekord.bind( this, this.$handleRemove );
-  this.$onRemoves = Rekord.bind( this, this.$handleRemoves );
-  this.$onCleared = Rekord.bind( this, this.$handleCleared );
-  this.$onReset   = Rekord.bind( this, this.$handleReset );
+  this.$onRemove  = bind( this, this.$handleRemove );
+  this.$onRemoves = bind( this, this.$handleRemoves );
+  this.$onCleared = bind( this, this.$handleCleared );
+  this.$onReset   = bind( this, this.$handleReset );
 
   this.$reset( source );
   this.$select( select, fill );
@@ -45,14 +45,14 @@ Select.prototype =
 
   $select: function(select, fill)
   {
-    if ( Rekord.isArray( select ) )
+    if ( isArray( select ) )
     {
       var db = this.$source.database;
       var remove = {};
 
       for (var key in this)
       {
-        if ( Rekord.isBoolean( this[ key ] ) )
+        if ( isBoolean( this[ key ] ) )
         {
           remove[ key ] = this[ key ];
         }
@@ -131,7 +131,7 @@ Select.prototype =
   {
     for (var key in this)
     {
-      if ( Rekord.isBoolean( this[ key ] ) )
+      if ( isBoolean( this[ key ] ) )
       {
         delete this[ key ];
       }
@@ -144,7 +144,7 @@ Select.prototype =
 
     for (var key in this)
     {
-      if ( Rekord.isBoolean( this[ key ] ) )
+      if ( isBoolean( this[ key ] ) )
       {
         if ( !source.has( key ) )
         {

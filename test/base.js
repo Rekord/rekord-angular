@@ -161,7 +161,9 @@ MockScope.prototype =
   $evalAsync: function(callback)
   {
     this.evals++;
-    callback();
+    if (Rekord.isFunction(callback)) {
+      callback();
+    }
   },
 
   $digest: function()
