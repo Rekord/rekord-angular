@@ -134,6 +134,9 @@ Rekord.Factory generates a factory function for angular to return a Rekord class
 ```javascript
 angular.module('my-module')
 
+  // Creates a reference to the model class
+  .factory( 'Task', Rekord.Factory.ref( 'Task' ) )
+
   // Creates a search and executes it (if run is true) the first time this dependency is injected.
   .factory( 'MySearch', Rekord.Factory.search( 'Task', '/tasks/search', {done: true}, true ) )
 

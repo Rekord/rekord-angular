@@ -690,6 +690,37 @@ test( 'lazyLoad', function(assert)
   });
 });
 
+test( 'ref', function(assert)
+{
+  var done = assert.async();
+  var prefix = 'RekorkFactory_ref_';
+
+  var TaskName = prefix + 'task';
+  var Task = Rekord({
+    name: TaskName,
+    fields: ['name', 'done'],
+    defaults: {done: false},
+    loadRemote: false
+  });
+
+  var ExpectedTask = Task;
+
+  expect( 1 );
+
+  angular.module( 'rekord-test' )
+    .factory( 'Task', Rekord.Factory.ref( TaskName ) )
+  ;
+
+  var $injector = angular.injector(['ng', 'ngMock', 'rekord', 'rekord-test']);
+
+  $injector.invoke(function(Task)
+  {
+    strictEqual( Task, ExpectedTask );
+
+    done();
+  });
+});
+
 test( 'filtered', function(assert)
 {
   var done = assert.async();

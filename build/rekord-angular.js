@@ -623,6 +623,14 @@ Factory.search = function(name, url, options, props, run, paged)
   });
 };
 
+Factory.ref = function(name, callback, context)
+{
+  return Factory.helper( name, function(model)
+  {
+    return model;
+  });
+};
+
 Factory.lazyLoad = function(name, callback, context)
 {
   var initialized = {};
