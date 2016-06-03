@@ -60,11 +60,11 @@ function InitializeRekord($http)
       {
         execute( 'DELETE', undefined, removeTrailingSlash( database.api + model.$key() ), success, failure, {} );
       },
-      query: function( url, query, success, failure )
+      query: function( url, data, success, failure )
       {
-        var method = query ? 'POST' : 'GET';
+        var method = isEmpty( data ) ? 'GET' : 'POST';
 
-        execute( method, query, url, success, failure );
+        execute( method, data, url, success, failure );
       }
     };
   }
