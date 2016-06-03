@@ -10,7 +10,7 @@ A rekord binding to angular - implementing Rekord.rest.
 
 The easiest way to install is by using bower via `bower install rekord-angular`.
 
-- `rekord-angular.js` is `14KB` (`3.1KB` gzipped)
+- `rekord-angular.js` is `14KB` (`3.2KB` gzipped)
 - `rekord-angular.min.js` is `6.3KB` (`2.1KB` gzipped)
 
 Include `rekord` as a module dependency in your angular app definition.

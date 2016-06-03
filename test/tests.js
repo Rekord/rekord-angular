@@ -855,3 +855,23 @@ test( 'grabAll', function(assert)
     done();
   });
 });
+
+module( 'Date' );
+
+test( 'formatDate', function(assert)
+{
+  var done = assert.async();
+  var prefix = 'Date_formatDate_';
+  var date = new Date(745873459485);
+
+  var $injector = angular.injector(['ng', 'ngMock', 'rekord', 'rekord-test']);
+
+  $injector.invoke(function()
+  {
+    var formatted = Rekord.formatDate( date, 'MM/dd/yyyy' );
+
+    strictEqual( formatted, '08/20/1993')
+
+    done();
+  });
+});

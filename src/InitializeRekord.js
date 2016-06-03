@@ -4,7 +4,7 @@ function removeTrailingSlash(x)
   return x.charAt(x.length - 1) === '/' ? x.substring(0, x.length - 1) : x;
 }
 
-function InitializeRekord($http)
+function InitializeRekord($http, $filter)
 {
   function execute( method, data, url, success, failure, offlineValue )
   {
@@ -69,6 +69,13 @@ function InitializeRekord($http)
     };
   }
 
+  function formatDate(date, format)
+  {
+    return $filter('date')( date, format );
+  }
+
   Rekord.setRest( RestFactory );
   Rekord.listenToNetworkStatus();
+
+  Rekord.formatDate = formatDate;
 }

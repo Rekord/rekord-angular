@@ -1,6 +1,6 @@
 
   app
-    .run( ['$http', InitializeRekord] )
+    .run( ['$http', '$filter', InitializeRekord] )
     .filter( 'models', ModelFilter )
   ;
 
