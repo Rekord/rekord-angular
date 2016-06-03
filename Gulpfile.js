@@ -16,7 +16,7 @@ var build = {
   include: [
     './src/header.js',
     './src/InitializeRekord.js',
-    './src/Bind.js',
+    './src/Sync.js',
     './src/Select.js',
     './src/Resolve.js',
     './src/Factory.js',

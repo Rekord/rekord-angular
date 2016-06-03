@@ -1,11 +1,11 @@
-module( 'RekordBind' );
+module( 'RekordSync' );
 
 var $injector = angular.injector(['ng', 'ngMock', 'rekord', 'rekord-test']);
 
 test( 'Database', function(assert)
 {
   var done = assert.async();
-  var prefix = 'NeurBind_Database_';
+  var prefix = 'NeurSync_Database_';
 
   var Task = Rekord({
     name: prefix + 'task',
@@ -20,7 +20,7 @@ test( 'Database', function(assert)
     strictEqual( $scope.listens, 0 );
     strictEqual( $scope.evals, 0 );
 
-    Rekord.Bind( $scope, Task );
+    Rekord.Sync( $scope, Task );
 
     strictEqual( $scope.listens, 1 );
     strictEqual( $scope.evals, 0 );
@@ -49,7 +49,7 @@ test( 'Database', function(assert)
 test( 'Model', function(assert)
 {
   var done = assert.async();
-  var prefix = 'NeurBind_Model_';
+  var prefix = 'NeurSync_Model_';
 
   var Task = Rekord({
     name: prefix + 'task',
@@ -66,7 +66,7 @@ test( 'Model', function(assert)
 
     var t0 = Task.create({name: 't0'});
 
-    Rekord.Bind( $scope, t0 );
+    Rekord.Sync( $scope, t0 );
 
     strictEqual( $scope.listens, 1 );
     strictEqual( $scope.evals, 0 );
@@ -95,7 +95,7 @@ test( 'Model', function(assert)
 test( 'Collection', function(assert)
 {
   var done = assert.async();
-  var prefix = 'NeurBind_Collection_';
+  var prefix = 'NeurSync_Collection_';
 
   $injector.invoke(function()
   {
@@ -106,7 +106,7 @@ test( 'Collection', function(assert)
 
     var c0 = Rekord.collect(1, 2, 3, 4);
 
-    Rekord.Bind( $scope, c0 );
+    Rekord.Sync( $scope, c0 );
 
     strictEqual( $scope.listens, 1 );
     strictEqual( $scope.evals, 0 );
@@ -135,7 +135,7 @@ test( 'Collection', function(assert)
 test( 'Page', function(assert)
 {
   var done = assert.async();
-  var prefix = 'NeurBind_Page_';
+  var prefix = 'NeurSync_Page_';
 
   $injector.invoke(function()
   {
@@ -147,7 +147,7 @@ test( 'Page', function(assert)
     var c0 = Rekord.collect(1, 2, 3, 4);
     var p0 = c0.page( 2 );
 
-    Rekord.Bind( $scope, p0 );
+    Rekord.Sync( $scope, p0 );
 
     strictEqual( $scope.listens, 1 );
     strictEqual( $scope.evals, 0 );

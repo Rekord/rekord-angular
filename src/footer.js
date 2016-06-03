@@ -4,7 +4,8 @@
     .filter( 'models', ModelFilter )
   ;
 
-  Rekord.Bind = Bind;
+  Rekord.Bind = Sync;
+  Rekord.Sync = Sync;
   Rekord.Resolve = Resolve;
   Rekord.Select = Select;
   Rekord.Factory = Factory;

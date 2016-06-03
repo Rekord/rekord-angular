@@ -10,11 +10,16 @@ A rekord binding to angular - implementing Rekord.rest.
 
 The easiest way to install is by using bower via `bower install rekord-angular`.
 
-There are two services which assist in making angular and rekord work flawlessly together:
+- `rekord-angular.js` is `14KB` (`3.1KB` gzipped)
+- `rekord-angular.min.js` is `6.3KB` (`2.1KB` gzipped)
 
-### Rekord.Bind
+Include `rekord` as a module dependency in your angular app definition.
 
-Rekord.Bind will bind modifications made outside of angular to an angular scope.
+There are several services which assist in making angular and rekord work nicely together:
+
+### Rekord.Sync
+
+Rekord.Sync will sync modifications made outside of angular to an angular scope.
 Modifications outside of angular includes but is not limited to:
 
 - Data being loaded from local storage
@@ -32,26 +37,27 @@ var Task = Rekord({
   defaults: {done: false}
 });
 
-Rekord.Bind( $scope, Task ); // Listens to all tasks
+Rekord.Sync( $scope, Task ); // Listens to all tasks
 
 var task = Task.create({name: 'Task #1'});
 
-Rekord.Bind( $scope, task ); // Listens to a single task
+Rekord.Sync( $scope, task ); // Listens to a single task
 
 var done = Task.all().where('done', true);
 
-Rekord.Bind( $scope, done ); // Listens to collection of all done tasks
+Rekord.Sync( $scope, done ); // Listens to collection of all done tasks
 
 var page = done.page( 10 );
 
-Rekord.Bind( $scope, page ); // Listens to a page from a collection
+Rekord.Sync( $scope, page ); // Listens to a page from a collection
 ```
 
 ### Rekord.Resolve
 
 Rekord.Resolve generates functions for routing libraries to return an object
-once it's completely loaded. This is used in routing libraries to avoid displaying the
-UI before data is completely loaded. Route parameters can also be used by specifying a string containing text in the format `{paramName}`.
+once it's completely loaded. This is used in routing libraries to avoid
+displaying the IU before data is completely loaded. Route parameters can also be
+used by specifying a string containing text in the format `{paramName}`.
 
 ```javascript
 {
@@ -102,37 +108,12 @@ UI before data is completely loaded. Route parameters can also be used by specif
 
 ```
 
-### Rekord.Select
-
-Rekord.Select allows a user to make models in a collection selectable - once the
-user is done selecting models they can be retrieved with `$selection()`. This
-pairs perfectly with ngModel & checkboxes.
-
-```javascript
-
-var options = Task.all().selectable();
-
-options[ task0.id ] = true;
-options[ task1.id ] = false;
-options[ task2.id ] = true;
-options[ task3.id ] = true;
-
-options.$selection(); // [task0, task2, task3]
-
-// Existing selected options
-var options = Task.all().selectable( currentUser.tasks );
-
-// Set what's currently selected
-options.$select( currentUers.tasks );
-
-```
-
 ### Rekord.Factory
 
 Rekord.Factory generates a factory function for angular to return a Rekord class.
 
 ```javascript
-angular.module('my-module')
+angular.module('my-module', ['rekord'])
 
   // Creates a reference to the model class
   .factory( 'Task', Rekord.Factory.ref( 'Task' ) )
@@ -159,4 +140,29 @@ angular.module('my-module')
   // from the remote source.
   .factory( 'TasksGrabbed', Rekord.Factory.grabAll( 'Task' ) )
 ;
+```
+
+### Rekord.Select
+
+Rekord.Select allows a user to make models in a collection selectable - once the
+user is done selecting models they can be retrieved with `$selection()`. This
+pairs perfectly with ngModel & checkboxes.
+
+```javascript
+
+var options = Task.all().selectable();
+
+options[ task0.id ] = true;
+options[ task1.id ] = false;
+options[ task2.id ] = true;
+options[ task3.id ] = true;
+
+options.$selection(); // [task0, task2, task3]
+
+// Existing selected options
+var options = Task.all().selectable( currentUser.tasks );
+
+// Set what's currently selected
+options.$select( currentUers.tasks );
+
 ```

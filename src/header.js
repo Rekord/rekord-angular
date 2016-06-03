@@ -6,6 +6,7 @@
   var isArray = Rekord.isArray;
   var isObject = Rekord.isObject;
   var isBoolean = Rekord.isBoolean;
+  var isRekord = Rekord.isRekord;
 
   var format = Rekord.format;
   var bind = Rekord.bind;

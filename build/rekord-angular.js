@@ -6,6 +6,7 @@
   var isArray = Rekord.isArray;
   var isObject = Rekord.isObject;
   var isBoolean = Rekord.isBoolean;
+  var isRekord = Rekord.isRekord;
 
   var format = Rekord.format;
   var bind = Rekord.bind;
@@ -93,11 +94,11 @@ function InitializeRekord($http)
   Rekord.listenToNetworkStatus();
 }
 
-function Bind( scope, target, callback )
+function Sync( scope, target, callback )
 {
-  if ( !(this instanceof Bind) )
+  if ( !(this instanceof Sync) )
   {
-    return new Bind( scope, target, callback );
+    return new Sync( scope, target, callback );
   }
 
   this.scope = scope;
@@ -107,23 +108,30 @@ function Bind( scope, target, callback )
   this.on();
 }
 
-Bind.prototype =
+Sync.prototype =
 {
   on: function()
   {
     var target = this.target;
 
-    if ( Rekord.isRekord( target ) )
+    if ( isRekord( target ) )
     {
       target = this.target = target.Database;
     }
 
-    this.off = target[ target.$change ? '$change' : 'change' ]( this.notify, this );
+    var targetFunction = target.$change ? '$change' : 'change';
 
-    this.scope.$on( '$destroy', this.off );
+    if ( target[ targetFunction ] )
+    {
+      this.off = target[ targetFunction ]( this.notify, this );
+
+      this.scope.$on( '$destroy', this.off );
+    }
   },
   notify: function()
   {
+    // $digest would be better for performance - but there's no official way
+    // to see if a digest cycle is currently running
     this.scope.$evalAsync();
 
     if ( isFunction( this.callback ) )
@@ -132,20 +140,6 @@ Bind.prototype =
     }
 
     Rekord.debug( Rekord.Debugs.ScopeDigest, this, this.scope );
-
-    /* IDEALLY we would call digest for best performance... no good way to do that yet
-    if( !scope.$$phase )
-    {
-      scope.$digest();
-
-      if ( this.callback )
-      {
-        this.callback.apply( this.target );
-      }
-
-      Rekord.debug( Rekord.Debugs.ScopeDigest, this, scope );
-    }
-    */
   }
 };
 
@@ -735,7 +729,8 @@ function ModelFilter()
     .filter( 'models', ModelFilter )
   ;
 
-  Rekord.Bind = Bind;
+  Rekord.Bind = Sync;
+  Rekord.Sync = Sync;
   Rekord.Resolve = Resolve;
   Rekord.Select = Select;
   Rekord.Factory = Factory;
