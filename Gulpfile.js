@@ -8,6 +8,7 @@ var qunit = require('gulp-qunit');
 var shell = require('gulp-shell');
 var size = require('gulp-check-filesize');
 var jshint = require('gulp-jshint');
+var rename = require('gulp-rename');
 
 var build = {
   filename: 'rekord-angular.js',
@@ -35,9 +36,9 @@ var executeMinifiedBuild = function(props)
 {
   return function() {
     return gulp
-      .src( props.include )
+      .src( props.output + props.filename )
+      .pipe( rename( props.minified ) )
       .pipe( sourcemaps.init() )
-        .pipe( plugins.concat( props.minified ) )
         .pipe( plugins.uglify().on('error', gutil.log) )
       .pipe( sourcemaps.write('.') )
       .pipe( size({enableGzip: true}) )
@@ -54,9 +55,9 @@ var executeBuild = function(props)
       .pipe( plugins.concat( props.filename ) )
       .pipe( size({enableGzip: true}) )
       .pipe( gulp.dest( props.output ) )
-      .pipe(jshint())
-      .pipe(jshint.reporter('default'))
-      .pipe(jshint.reporter('fail'))
+      .pipe( jshint() )
+      .pipe( jshint.reporter('default') )
+      .pipe( jshint.reporter('fail') )
     ;
   };
 };
@@ -64,21 +65,25 @@ var executeBuild = function(props)
 var executeTest = function(file)
 {
   return function() {
-    return gulp.src( file ).pipe( qunit() );
+    return gulp
+      .src( file )
+      .pipe( qunit() )
+    ;
   };
 };
 
 gulp.task('lint', function() {
   return gulp
-    .src(build.output + build.filename)
-    .pipe(jshint())
-    .pipe(jshint.reporter('default'))
-    .pipe(jshint.reporter('fail'))
+    .src( build.output + build.filename )
+    .pipe( jshint() )
+    .pipe( jshint.reporter('default') )
+    .pipe( jshint.reporter('fail') )
   ;
 });
 
-gulp.task( 'test', executeTest( tests ) );
-
-gulp.task( 'js:min', executeMinifiedBuild( build ) );
 gulp.task( 'js', executeBuild( build ) );
-gulp.task( 'default', ['js:min', 'js']);
+gulp.task( 'js:min', ['js'], executeMinifiedBuild( build ) );
+
+gulp.task( 'default', ['js:min']);
+
+gulp.task( 'test', ['js'], executeTest( tests ) );

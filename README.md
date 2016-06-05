@@ -13,6 +13,34 @@ The easiest way to install is by using bower via `bower install rekord-angular`.
 - `rekord-angular.js` is `14KB` (`3.2KB` gzipped)
 - `rekord-angular.min.js` is `6.3KB` (`2.1KB` gzipped)
 
+### Usage Example
+
+```javascript
+// Executed after options are applied but before the store, rest, & live
+// implementations are added. It's good to prepare your database in this
+// function so if you switch backends there's only one place you need to do so.
+// You can also pass a prepare function as a Rekord option.
+Rekord.Database.Defaults.prepare = function(db, options) {
+  db.api = options.api || '/api/1.0/' + options.name + '/';
+};
+
+// Default behavior
+var TaskList = Rekord({
+  name: 'task_list',
+  field: ['name', 'done']
+  // api: '/api/1.0/task_list/' is generated
+});
+
+// Override (or default behavior if prepare method isn't used like above)
+var Task = Rekord({
+  name: 'task',
+  api: '/api/1.1/task/',
+  field: ['name', 'done', 'task_list_id']
+});
+
+// NOTE: The API should typically end in a slash
+```
+
 Include `rekord` as a module dependency in your angular app definition.
 
 There are several services which assist in making angular and rekord work nicely together:
