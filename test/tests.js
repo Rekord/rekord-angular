@@ -875,3 +875,309 @@ test( 'formatDate', function(assert)
     done();
   });
 });
+
+module('$http');
+
+test( 'custom option', function(assert)
+{
+  var done = assert.async();
+  var prefix = 'custom_option_';
+
+  var $injector = angular.injector(['ng', 'ngMock', 'rekord', 'rekord-test-http']);
+
+  $injector.invoke(function()
+  {
+    Rekord.Angular.options.custom = 'Hello World!';
+
+    angular.$http.result = null;
+
+    var Task = Rekord({
+      name: prefix + 'task',
+      fields: ['name', 'done'],
+      api: 'task'
+    });
+
+    var t0 = Task.create({id: 2, name: 't0', done:false});
+
+    deepEqual( angular.$http.lastOptions.data, {id: 2, name: 't0', done: false} );
+    deepEqual( angular.$http.lastOptions.method, 'POST' );
+    deepEqual( angular.$http.lastOptions.custom, 'Hello World!' );
+
+    done();
+  });
+
+  delete Rekord.Angular.options.custom;
+});
+
+test( 'override option', function(assert)
+{
+  var done = assert.async();
+  var prefix = 'override_option_';
+
+  var $injector = angular.injector(['ng', 'ngMock', 'rekord', 'rekord-test-http']);
+
+  $injector.invoke(function()
+  {
+    Rekord.Angular.options.cache = true;
+
+    angular.$http.result = null;
+
+    var Task = Rekord({
+      name: prefix + 'task',
+      fields: ['name', 'done'],
+      api: 'task'
+    });
+
+    var t0 = Task.create({id: 2, name: 't0', done:false});
+
+    deepEqual( angular.$http.lastOptions.data, {id: 2, name: 't0', done: false} );
+    deepEqual( angular.$http.lastOptions.method, 'POST' );
+    deepEqual( angular.$http.lastOptions.cache, true );
+
+    done();
+  });
+
+  delete Rekord.Angular.options.cache;
+});
+
+test( 'adjust options', function(assert)
+{
+  var done = assert.async();
+  var prefix = 'adjust_options_';
+
+  var $injector = angular.injector(['ng', 'ngMock', 'rekord', 'rekord-test-http']);
+
+  $injector.invoke(function()
+  {
+    Rekord.Angular.adjustOptions = function(options)
+    {
+      options.another = 'yes';
+    };
+
+    angular.$http.result = null;
+
+    var Task = Rekord({
+      name: prefix + 'task',
+      fields: ['name', 'done'],
+      api: 'task'
+    });
+
+    var t0 = Task.create({id: 2, name: 't0', done:false});
+
+    deepEqual( angular.$http.lastOptions.data, {id: 2, name: 't0', done: false} );
+    deepEqual( angular.$http.lastOptions.method, 'POST' );
+    deepEqual( angular.$http.lastOptions.another, 'yes' );
+
+    done();
+  });
+
+  Rekord.Angular.adjustOptions = Rekord.noop;
+});
+
+test( 'all', function(assert)
+{
+  var done = assert.async();
+  var prefix = 'all_';
+
+  var $injector = angular.injector(['ng', 'ngMock', 'rekord', 'rekord-test-http']);
+
+  $injector.invoke(function()
+  {
+    angular.$http.result = [
+      {id: 2, name: 't2', done: 1},
+      {id: 3, name: 't3', done: 0}
+    ];
+
+    var Task = Rekord({
+      name: prefix + 'task',
+      fields: ['name', 'done'],
+      api: 'task',
+      load: Rekord.Load.All
+    });
+
+    strictEqual( Task.all().length, 2 );
+    deepEqual( angular.$http.lastOptions.method, 'GET' );
+
+    done();
+  });
+});
+
+test( 'get', function(assert)
+{
+  var done = assert.async();
+  var prefix = 'get_';
+
+  var $injector = angular.injector(['ng', 'ngMock', 'rekord', 'rekord-test-http']);
+
+  $injector.invoke(function()
+  {
+    angular.$http.result = {id: 2, name: 't2', done: 1};
+
+    var Task = Rekord({
+      name: prefix + 'task',
+      fields: ['name', 'done'],
+      api: 'task',
+      load: Rekord.Load.All
+    });
+
+    var t2 = Task.fetch(2);
+
+    strictEqual( t2.name, 't2' );
+    deepEqual( angular.$http.lastOptions.method, 'GET' );
+
+    done();
+  });
+});
+
+test( 'create', function(assert)
+{
+  var done = assert.async();
+  var prefix = 'create_';
+
+  var $injector = angular.injector(['ng', 'ngMock', 'rekord', 'rekord-test-http']);
+
+  $injector.invoke(function()
+  {
+    angular.$http.result = {done: false};
+
+    var Task = Rekord({
+      name: prefix + 'task',
+      fields: ['name', 'done'],
+      api: 'task'
+    });
+
+    var t0 = Task.create({id: 2, name: 't0'});
+
+    deepEqual( angular.$http.lastOptions.data, {id: 2, name: 't0', done: false} );
+    deepEqual( angular.$http.lastOptions.method, 'POST' );
+    strictEqual( t0.done, false );
+
+    done();
+  });
+});
+
+test( 'update', function(assert)
+{
+  var done = assert.async();
+  var prefix = 'update_';
+
+  var $injector = angular.injector(['ng', 'ngMock', 'rekord', 'rekord-test-http']);
+
+  $injector.invoke(function()
+  {
+    angular.$http.result = null;
+
+    var Task = Rekord({
+      name: prefix + 'task',
+      fields: ['name', 'done'],
+      api: 'task'
+    });
+
+    var t0 = Task.create({id: 2, name: 't0', done: false});
+
+    deepEqual( angular.$http.lastOptions.data, {id: 2, name: 't0', done: false} );
+    deepEqual( angular.$http.lastOptions.method, 'POST' );
+
+    t0.name = 't0a';
+    t0.$save();
+
+    deepEqual( angular.$http.lastOptions.data, {name: 't0a'} );
+    deepEqual( angular.$http.lastOptions.method, 'PUT' );
+
+    done();
+  });
+});
+
+test( 'delete', function(assert)
+{
+  var done = assert.async();
+  var prefix = 'delete_';
+
+  var $injector = angular.injector(['ng', 'ngMock', 'rekord', 'rekord-test-http']);
+
+  $injector.invoke(function()
+  {
+    angular.$http.result = null;
+
+    var Task = Rekord({
+      name: prefix + 'task',
+      fields: ['name', 'done'],
+      api: 'task'
+    });
+
+    var t0 = Task.create({id: 2, name: 't0', done: false});
+
+    deepEqual( angular.$http.lastOptions.data, {id: 2, name: 't0', done: false} );
+    deepEqual( angular.$http.lastOptions.method, 'POST' );
+
+    t0.$remove();
+
+    deepEqual( angular.$http.lastOptions.data, undefined );
+    deepEqual( angular.$http.lastOptions.method, 'DELETE' );
+
+    done();
+  });
+});
+
+test( 'search get', function(assert)
+{
+  var done = assert.async();
+  var prefix = 'search_get_';
+
+  var $injector = angular.injector(['ng', 'ngMock', 'rekord', 'rekord-test-http']);
+
+  $injector.invoke(function()
+  {
+    angular.$http.result = [
+      {id: 2, name: 't2', done: 1},
+      {id: 3, name: 't3', done: 0}
+    ];
+
+    var Task = Rekord({
+      name: prefix + 'task',
+      fields: ['name', 'done'],
+      api: 'task'
+    });
+
+    var search = Task.search('/my/tasks');
+    var promise = search.$run();
+    var results = search.$results;
+
+    strictEqual( results.length, 2 );
+    deepEqual( angular.$http.lastOptions.data, {} );
+    deepEqual( angular.$http.lastOptions.method, 'GET' );
+
+    done();
+  });
+});
+
+test( 'search post', function(assert)
+{
+  var done = assert.async();
+  var prefix = 'search_post_';
+
+  var $injector = angular.injector(['ng', 'ngMock', 'rekord', 'rekord-test-http']);
+
+  $injector.invoke(function()
+  {
+    angular.$http.result = [
+      {id: 2, name: 't2', done: 1},
+      {id: 3, name: 't3', done: 0}
+    ];
+
+    var Task = Rekord({
+      name: prefix + 'task',
+      fields: ['name', 'done'],
+      api: 'task'
+    });
+
+    var search = Task.search('/my/tasks', {}, {done: true}, true);
+    var results = search.$results;
+
+    strictEqual( results.length, 2 );
+    deepEqual( angular.$http.lastOptions.data, {done: true} );
+    deepEqual( angular.$http.lastOptions.method, 'POST' );
+
+    done();
+  });
+});

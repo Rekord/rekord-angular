@@ -43,6 +43,35 @@ var Task = Rekord({
 
 Include `rekord` as a module dependency in your angular app definition.
 
+You can add global options to send to [$http](https://docs.angularjs.org/api/ng/service/$http) by modifying `Rekord.Angular.options` or by overriding the `Rekord.Angular.adjustOptions` function which is given `(options, database, method, model, data, url, success, failure)` and should be used to dynamically modify the options.
+
+
+```javascript
+// Add global options
+Rekord.Angular.options.headers = {
+  Authorization: 'Basic ' + base64.encode('Username:Password')
+};
+
+// Add/override options dynamically
+Rekord.Angular.adjustOptions = function(options, database, method, model, data, url, success, failure) {
+  if (database.name === 'todos' && model) {
+    options.url = database.api + model.list_id + '/todos/' + model.$$key();
+  }
+};
+
+// Override how options are processed
+Rekord.Angular.ajax = function(options, success, failure) {
+  $http( options ).then( success, failure ); // default
+};
+
+// The class instantiated with a database instance that implements Rekord.rest
+Rekord.Angular.RestClass;
+
+// The function which returns a Rekord.rest implementation given a database
+// Normally Rekord.rest is the same value but multiple back-ends could be used
+Rekord.Angular.rest;
+```
+
 There are several services which assist in making angular and rekord work nicely together:
 
 ### Rekord.Sync

@@ -49,6 +49,65 @@ angular.module( 'rekord-test', [] )
   })
 ;
 
+angular.module( 'rekord-test-http', [] )
+  .run(function()
+  {
+    Rekord.store = function(database)
+    {
+      var store = Rekord.store[ database.name ];
+
+      if ( !store )
+      {
+        store = Rekord.store[ database.name ] = new TestStore();
+      }
+
+      return store;
+    };
+
+    Rekord.live = function(database)
+    {
+      var live = Rekord.live[ database.name ];
+
+      if ( !live )
+      {
+        live = Rekord.live[ database.name ] = new TestLive( database );
+      }
+
+      return live;
+    };
+
+    Rekord.rest = Rekord.Angular.rest;
+  })
+  .factory('$http', function()
+  {
+    function $http(options)
+    {
+      $http.lastOptions = options;
+
+      return {
+        then: function(success, failure)
+        {
+          if ( $http.status === 200 )
+          {
+            success( {data: $http.result} );
+          }
+          else
+          {
+            failure( {data: $http.result, status: $http.status} );
+          }
+        }
+      }
+    }
+
+    $http.status = 200;
+    $http.result = null;
+
+    angular.$http = $http;
+
+    return $http;
+  });
+;
+
 // Extra Assertions
 
 function isInstance(model, Class, message)

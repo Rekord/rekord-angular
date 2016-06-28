@@ -11,6 +11,10 @@
 
   var format = Rekord.format;
   var bind = Rekord.bind;
+  var noop = Rekord.noop;
+  var transfer = Rekord.transfer;
+
+  var Rekord_rest = Rekord.rest;
 
   var Resolve = {};
   var Factory = {};
