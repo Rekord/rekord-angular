@@ -60,7 +60,7 @@ Select.prototype =
 
       for (var i = 0; i < select.length; i++)
       {
-        var key = db.buildKeyFromInput( select[ i ] );
+        var key = db.keyHandler.buildKeyFromInput( select[ i ] );
 
         this[ key ] = true;
 
@@ -114,7 +114,7 @@ Select.prototype =
   $handleRemove: function(removed)
   {
     var db = this.$source.database;
-    var key = db.buildKeyFromInput( removed );
+    var key = db.keyHandler.buildKeyFromInput( removed );
 
     delete this[ key ];
   },
