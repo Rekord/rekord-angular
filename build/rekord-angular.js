@@ -1,4 +1,4 @@
-/* rekord-angular 1.4.1 - A rekord binding to angular - implementing Rekord.rest by Philip Diffenderfer */
+/* rekord-angular 1.4.2 - A rekord binding to angular - implementing Rekord.rest by Philip Diffenderfer */
 (function (global, Rekord, ng, app, undefined)
 {
 

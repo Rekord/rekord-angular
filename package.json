@@ -1,9 +1,10 @@
 {
   "name": "rekord-angular",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "A rekord binding to angular - implementing Rekord.rest",
   "author": "Philip Diffenderfer",
   "license": "MIT",
+  "main": "build/rekord-angular.js",
   "repository": {
     "type": "git",
     "url": "git://github.com/Rekord/rekord-angular.git"
