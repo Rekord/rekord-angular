@@ -1,11 +1,11 @@
-/* rekord-angular 1.4.3 - A rekord binding to angular - implementing Rekord.rest by Philip Diffenderfer */
+/* rekord-angular 1.4.4 - A rekord binding to angular - implementing Rekord.rest by Philip Diffenderfer */
 // UMD (Universal Module Definition)
 (function (root, factory)
 {
   if (typeof define === 'function' && define.amd) // jshint ignore:line
   {
     // AMD. Register as an anonymous module.
-    define(['Rekord', 'angular'], function(Rekord, angular) { // jshint ignore:line
+    define(['rekord', 'angular'], function(Rekord, angular) { // jshint ignore:line
       return factory(root, Rekord, angular);
     });
   }
@@ -14,7 +14,7 @@
     // Node. Does not work with strict CommonJS, but
     // only CommonJS-like environments that support module.exports,
     // like Node.
-    module.exports = factory(global, require('Rekord'), require('angular'));  // jshint ignore:line
+    module.exports = factory(global, require('rekord'), require('angular'));  // jshint ignore:line
   }
   else
   {
