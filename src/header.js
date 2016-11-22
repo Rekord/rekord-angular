@@ -32,7 +32,8 @@
   var isBoolean = Rekord.isBoolean;
   var isRekord = Rekord.isRekord;
   var isEmpty = Rekord.isEmpty;
-
+  var isFormatInput = Rekord.isFormatInput;
+  
   var format = Rekord.format;
   var bind = Rekord.bind;
   var noop = Rekord.noop;

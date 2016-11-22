@@ -2,6 +2,7 @@
 // Config
 
 QUnit.config.reorder = false;
+QUnit.config.testTimeout = 30 * 1000;
 
 Rekord.autoload = true;
 
@@ -397,7 +398,7 @@ function TestRest()
   this.status = 200;
   this.returnValue = false;
   this.delay = 0;
-  this.lastModel = this.lastRecord = null;
+  this.lastModel = this.lastRecord = this.lastOptions = null;
 }
 
 TestRest.prototype =
@@ -435,9 +436,10 @@ TestRest.prototype =
       if ( failure ) failure( returnedValue, status );
     }
   },
-  get: function(model, success, failure)
+  get: function(model, options, success, failure)
   {
     this.lastModel = model;
+    this.lastOptions = options;
 
     var map = this.map;
     function onGet()
@@ -452,10 +454,11 @@ TestRest.prototype =
 
     this.finishDelayed( onGet, failure, null );
   },
-  create: function(model, encoded, success, failure)
+  create: function(model, encoded, options, success, failure)
   {
     this.lastModel = model;
     this.lastRecord = encoded;
+    this.lastOptions = options;
 
     var map = this.map;
     function onCreate()
@@ -466,10 +469,11 @@ TestRest.prototype =
 
     this.finishDelayed( onCreate, failure, {} );
   },
-  update: function(model, encoded, success, failure)
+  update: function(model, encoded, options, success, failure)
   {
     this.lastModel = model;
     this.lastRecord = encoded;
+    this.lastOptions = options;
 
     var map = this.map;
     function onUpdate()
@@ -481,9 +485,10 @@ TestRest.prototype =
 
     this.finishDelayed( onUpdate, failure, {} );
   },
-  remove: function(model, success, failure)
+  remove: function(model, options, success, failure)
   {
     this.lastModel = model;
+    this.lastOptions = options;
 
     var map = this.map;
     function onRemove()
@@ -494,12 +499,16 @@ TestRest.prototype =
 
     this.finishDelayed( onRemove, failure, {} );
   },
-  all: function(success, failure)
+  all: function(options, success, failure)
   {
+    this.lastOptions = options;
+
     this.finishDelayed( success, failure, this.map.values );
   },
-  query: function(url, query, success, failure)
+  query: function(url, query, options, success, failure)
   {
+    this.lastOptions = options;
+
     this.finishDelayed( success, failure, this.queries.get( url ) );
   }
 };

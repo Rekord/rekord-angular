@@ -1,6 +1,6 @@
 {
   "name": "rekord-angular",
-  "version": "1.4.4",
+  "version": "1.5.0",
   "description": "A rekord binding to angular - implementing Rekord.rest",
   "author": "Philip Diffenderfer",
   "license": "MIT",
@@ -30,6 +30,6 @@
   },
   "dependencies": {
     "angular": "*",
-    "rekord": "~1.4.0"
+    "rekord": "~1.5.0"
   }
 }

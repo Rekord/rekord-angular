@@ -177,13 +177,13 @@ Resolve.model = function( name, input )
   });
 };
 
-Resolve.fetch = function( name, input )
+Resolve.fetch = function( name, input, options )
 {
   return Resolve.factory( name, function(model, defer, templateResolver)
   {
     var resolvedInput = ResolveInput( input, templateResolver );
 
-    model.fetch( resolvedInput, function(instance)
+    model.fetch( resolvedInput, options, function(instance)
     {
       defer.resolve( instance );
     });
@@ -225,7 +225,7 @@ Resolve.grabAll = function( name )
   });
 };
 
-Resolve.create = function( name, properties, dontSave )
+Resolve.create = function( name, properties, dontSave, cascade, options )
 {
   return Resolve.factory( name, function(model, defer, templateResolver)
   {
@@ -237,7 +237,7 @@ Resolve.create = function( name, properties, dontSave )
     }
     else
     {
-      var instance = model.create( resolvedProperties );
+      var instance = model.create( resolvedProperties, cascade, options );
 
       if ( instance.$isSaved() )
       {
@@ -273,6 +273,21 @@ Resolve.search = function( name, url, options, props )
   });
 };
 
+Resolve.searchAt = function( name, index, url, paging, options, props )
+{
+  return Resolve.factory( name, function(model, defer, templateResolver)
+  {
+    var resolvedIndex = ResolveInput( index, templateResolver );
+    var resolvedQuery = ResolveInput( url, templateResolver );
+    var promise = model.searchAt( resolvedIndex, resolvedQuery, paging, options, props );
+
+    promise.complete(function(result)
+    {
+      defer.resolve( result );
+    });
+  });
+};
+
 Resolve.all = function( name )
 {
   return Resolve.factory( name, function(model, defer, templateResolver)
@@ -294,6 +309,17 @@ Resolve.where = function( name, whereProperties, whereValue, whereEquals )
     model.Database.ready(function()
     {
       defer.resolve( model.all().filtered( resolvedWhereProperties, resolvedWhereValue, whereEquals ) );
+    });
+  });
+};
+
+Resolve.ready = function( name )
+{
+  return Resolve.factory( name, function(model, defer, templateResolver)
+  {
+    model.Database.ready(function()
+    {
+      defer.resolve( model );
     });
   });
 };

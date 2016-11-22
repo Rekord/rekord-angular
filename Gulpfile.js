@@ -31,6 +31,7 @@ var build = {
 
 var tests = [
   './test/index.html',
+  './test/index-ajax.html',
   './test/index-ngRoute.html',
   './test/index-ui.router.html'
 ];

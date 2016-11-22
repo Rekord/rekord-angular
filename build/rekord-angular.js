@@ -1,4 +1,4 @@
-/* rekord-angular 1.4.4 - A rekord binding to angular - implementing Rekord.rest by Philip Diffenderfer */
+/* rekord-angular 1.5.0 - A rekord binding to angular - implementing Rekord.rest by Philip Diffenderfer */
 // UMD (Universal Module Definition)
 (function (root, factory)
 {
@@ -33,7 +33,8 @@
   var isBoolean = Rekord.isBoolean;
   var isRekord = Rekord.isRekord;
   var isEmpty = Rekord.isEmpty;
-
+  var isFormatInput = Rekord.isFormatInput;
+  
   var format = Rekord.format;
   var bind = Rekord.bind;
   var noop = Rekord.noop;
@@ -63,33 +64,37 @@ function InitializeRekord($http, $filter)
     {
       return x.charAt(x.length - 1) === '/' ? x.substring(0, x.length - 1) : x;
     },
-    all: function( success, failure )
+    buildURL: function(model)
     {
-      this.execute( 'GET', null, undefined, this.database.api, success, failure, [] );
+      return this.removeTrailingSlash( Rekord.Angular.buildURL( this.database, model ) );
     },
-    get: function( model, success, failure )
+    all: function( options, success, failure )
     {
-      this.execute( 'GET', model, undefined, this.removeTrailingSlash( this.database.api + model.$key() ), success, failure );
+      this.execute( 'GET', null, undefined, this.buildURL(), options, success, failure, [] );
     },
-    create: function( model, encoded, success, failure )
+    get: function( model, options, success, failure )
     {
-      this.execute( 'POST', model, encoded, this.removeTrailingSlash( this.database.api ), success, failure, {} );
+      this.execute( 'GET', model, undefined, this.buildURL( model ), options, success, failure );
     },
-    update: function( model, encoded, success, failure )
+    create: function( model, encoded, options, success, failure )
     {
-      this.execute( 'PUT', model, encoded, this.removeTrailingSlash( this.database.api + model.$key() ), success, failure, {} );
+      this.execute( 'POST', model, encoded, this.buildURL(), options, success, failure, {} );
     },
-    remove: function( model, success, failure )
+    update: function( model, encoded, options, success, failure )
     {
-      this.execute( 'DELETE', model, undefined, this.removeTrailingSlash( this.database.api + model.$key() ), success, failure, {} );
+      this.execute( 'PUT', model, encoded, this.buildURL( model ), options, success, failure, {} );
     },
-    query: function( url, data, success, failure )
+    remove: function( model, options, success, failure )
+    {
+      this.execute( 'DELETE', model, undefined, this.buildURL( model ), options, success, failure, {} );
+    },
+    query: function( url, data, options, success, failure )
     {
       var method = isEmpty( data ) ? 'GET' : 'POST';
 
-      this.execute( method, null, data, url, success, failure );
+      this.execute( method, null, data, url, options, success, failure );
     },
-    execute: function( method, model, data, url, success, failure, offlineValue )
+    execute: function( method, model, data, url, extraOptions, success, failure, offlineValue )
     {
       Rekord.debug( Rekord.Debugs.REST, this, method, url, data );
 
@@ -109,13 +114,30 @@ function InitializeRekord($http, $filter)
           failure( response.data, response.status );
         };
 
+        var vars = transfer( Rekord.Angular.vars, transfer( model, {} ) );
         var options = transfer( Rekord.Angular.options, {
           method: method,
           data: data,
           url: url
         });
 
-        Rekord.Angular.adjustOptions( options, this.database, method, model, data, url, success, failure );
+        if ( isObject( extraOptions ) )
+        {
+          transfer( options, extraOptions );
+
+          if ( isObject( extraOptions.vars ) )
+          {
+            transfer( extraOptions.vars, vars );
+          }
+        }
+
+        Rekord.Angular.adjustOptions( options, this.database, method, model, data, url, vars, success, failure );
+
+        if ( isFormatInput( options.url ) )
+        {
+          options.url = format( options.url, vars );
+        }
+
         Rekord.Angular.ajax( options, onRestSuccess, onRestError );
       }
     }
@@ -136,12 +158,18 @@ function InitializeRekord($http, $filter)
     $http( options ).then( success, failure );
   }
 
+  function buildURL(db, model)
+  {
+    return model ? db.api + model.$key() : db.api;
+  }
+
   function formatDate(date, format)
   {
     return $filter('date')( date, format );
   }
 
   Rekord.setRest( RestFactory );
+
   Rekord.listenToNetworkStatus();
 
   Rekord.formatDate = formatDate;
@@ -150,8 +178,10 @@ function InitializeRekord($http, $filter)
   {
     rest: RestFactory,
     options: {},
+    vars: {},
     adjustOptions: noop,
     ajax: ajax,
+    buildURL: buildURL,
     RestClass: Rest
   };
 }
@@ -546,13 +576,13 @@ Resolve.model = function( name, input )
   });
 };
 
-Resolve.fetch = function( name, input )
+Resolve.fetch = function( name, input, options )
 {
   return Resolve.factory( name, function(model, defer, templateResolver)
   {
     var resolvedInput = ResolveInput( input, templateResolver );
 
-    model.fetch( resolvedInput, function(instance)
+    model.fetch( resolvedInput, options, function(instance)
     {
       defer.resolve( instance );
     });
@@ -594,7 +624,7 @@ Resolve.grabAll = function( name )
   });
 };
 
-Resolve.create = function( name, properties, dontSave )
+Resolve.create = function( name, properties, dontSave, cascade, options )
 {
   return Resolve.factory( name, function(model, defer, templateResolver)
   {
@@ -606,7 +636,7 @@ Resolve.create = function( name, properties, dontSave )
     }
     else
     {
-      var instance = model.create( resolvedProperties );
+      var instance = model.create( resolvedProperties, cascade, options );
 
       if ( instance.$isSaved() )
       {
@@ -642,6 +672,21 @@ Resolve.search = function( name, url, options, props )
   });
 };
 
+Resolve.searchAt = function( name, index, url, paging, options, props )
+{
+  return Resolve.factory( name, function(model, defer, templateResolver)
+  {
+    var resolvedIndex = ResolveInput( index, templateResolver );
+    var resolvedQuery = ResolveInput( url, templateResolver );
+    var promise = model.searchAt( resolvedIndex, resolvedQuery, paging, options, props );
+
+    promise.complete(function(result)
+    {
+      defer.resolve( result );
+    });
+  });
+};
+
 Resolve.all = function( name )
 {
   return Resolve.factory( name, function(model, defer, templateResolver)
@@ -663,6 +708,17 @@ Resolve.where = function( name, whereProperties, whereValue, whereEquals )
     model.Database.ready(function()
     {
       defer.resolve( model.all().filtered( resolvedWhereProperties, resolvedWhereValue, whereEquals ) );
+    });
+  });
+};
+
+Resolve.ready = function( name )
+{
+  return Resolve.factory( name, function(model, defer, templateResolver)
+  {
+    model.Database.ready(function()
+    {
+      defer.resolve( model );
     });
   });
 };
