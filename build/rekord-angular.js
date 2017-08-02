@@ -1,4 +1,4 @@
-/* rekord-angular 1.5.0 - A rekord binding to angular - implementing Rekord.rest by Philip Diffenderfer */
+/* rekord-angular 1.5.6 - A rekord binding to angular - implementing Rekord.rest by Philip Diffenderfer */
 // UMD (Universal Module Definition)
 (function (root, factory)
 {
@@ -168,6 +168,7 @@ function InitializeRekord($http, $filter)
     return $filter('date')( date, format );
   }
 
+  Rekord.Rests.Angular = RestFactory;
   Rekord.setRest( RestFactory );
 
   Rekord.listenToNetworkStatus();

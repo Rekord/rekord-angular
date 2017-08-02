@@ -116,6 +116,7 @@ function InitializeRekord($http, $filter)
     return $filter('date')( date, format );
   }
 
+  Rekord.Rests.Angular = RestFactory;
   Rekord.setRest( RestFactory );
 
   Rekord.listenToNetworkStatus();
