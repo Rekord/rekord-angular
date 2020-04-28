@@ -201,13 +201,13 @@ Resolve.fetchAll = function( name )
   });
 };
 
-Resolve.grab = function( name, input )
+Resolve.grab = function( name, input, options )
 {
   return Resolve.factory( name, function(model, defer, templateResolver)
   {
     var resolvedInput = ResolveInput( input, templateResolver );
 
-    model.grab( resolvedInput, function(instance)
+    model.grab( resolvedInput, options, function(instance)
     {
       defer.resolve( instance );
     });
